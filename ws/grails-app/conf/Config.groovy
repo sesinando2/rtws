@@ -146,11 +146,12 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	'/**/css/**':                     ['permitAll'],
 	'/**/images/**':                  ['permitAll'],
 	'/**/favicon.ico':                ['permitAll'],
+    '/token/**':                      ['permitAll'],
     '/**':                            ['isFullyAuthenticated()']
 ]
 grails.plugin.springsecurity.filterChain.chainMap = [
     '/api/**': 'JOINED_FILTERS',
-    '/fileSystem/**': 'JOINED_FILTERS',
+    '/repo/**': 'JOINED_FILTERS',
     '/**': 'JOINED_FILTERS,-basicExceptionTranslationFilter,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter'
 ]
 grails.plugin.springsecurity.secureChannel.definition = [

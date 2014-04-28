@@ -9,5 +9,7 @@ class UrlMappings {
 
         "/"(view:"/index")
         "500"(view:'/error')
+        "/repo/$action?/$id?"(controller: "repo")
+        "/token/$action?/$id?"(controller: "token")
 	}
 }

@@ -95,6 +95,7 @@
     <orderEntry type="module-library" exported="">
       <library name="Grails User Library (Web Service-grailsPlugins)">
         <CLASSES>
+          <root url="file://$MODULE_DIR$/target/work/plugins/image-tools-1.0.5/lib" />
           <root url="jar://$MAVEN_REPOSITORY$/org/liquibase/liquibase-core/2.0.5/liquibase-core-2.0.5.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/hibernate/hibernate-commons-annotations/3.2.0.Final/hibernate-commons-annotations-3.2.0.Final.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/hibernate/hibernate-entitymanager/3.6.10.Final/hibernate-entitymanager-3.6.10.Final.jar!/" />
@@ -132,7 +133,7 @@
           <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava-io/r03/guava-io-r03.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/net/spy/spymemcached/2.10.3/spymemcached-2.10.3.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/postgresql/postgresql/9.1-901.jdbc3/postgresql-9.1-901.jdbc3.jar!/" />
-          <root url="file://$MODULE_DIR$/target/work/plugins/image-tools-1.0.5/lib" />
+          <root url="jar://$MAVEN_REPOSITORY$/mysql/mysql-connector-java/5.1.27/mysql-connector-java-5.1.27.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>

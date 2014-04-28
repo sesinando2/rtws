@@ -41,6 +41,7 @@
       <sourceFolder url="file://$MODULE_DIR$/test/unit" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/test/integration" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target/classes" />
+      <excludeFolder url="file://$MODULE_DIR$/target/work/gspcompile" />
       <excludeFolder url="file://$MODULE_DIR$/target/work/plugin-build-classes" />
       <excludeFolder url="file://$MODULE_DIR$/target/work/plugin-classes" />
       <excludeFolder url="file://$MODULE_DIR$/target/work/plugin-provided-classes" />
@@ -93,6 +94,7 @@
           <root url="jar://$MAVEN_REPOSITORY$/com/google/guava/guava-io/r03/guava-io-r03.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/net/spy/spymemcached/2.10.3/spymemcached-2.10.3.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/postgresql/postgresql/9.1-901.jdbc3/postgresql-9.1-901.jdbc3.jar!/" />
+          <root url="jar://$MAVEN_REPOSITORY$/mysql/mysql-connector-java/5.1.27/mysql-connector-java-5.1.27.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>

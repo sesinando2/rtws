@@ -11,7 +11,7 @@ class User {
 	boolean accountLocked
 	boolean passwordExpired
 
-	static transients = ['springSecurityService']
+	static transients = ['springSecurityService', 'authorities']
 
 	static constraints = {
 		username blank: false, unique: true
@@ -24,7 +24,12 @@ class User {
 	}
 
 	Set<Role> getAuthorities() {
-		UserRole.findAllByUser(this).collect { it.role } as Set
+        try {
+            return UserRole.findAllByUser(this).collect { it.role } as Set
+        } catch (all) {
+            return []
+        }
+
 	}
 
 	def beforeInsert() {
