@@ -73,12 +73,13 @@ class RepoService extends AbstractService {
         }
         def file = FileData.get(id)
         if (file.isImage && params?.thumb && params.thumb.toString().number) {
+            file = new FileData(file.properties)
             ImageTool imageTool = new ImageTool()
             imageTool.load(file.data)
             imageTool.thumbnail(params?.thumb as int)
             file.data = imageTool.getBytes("JPEG")
         }
-        return FileData.get(id)
+        return file
     }
 
     //region Roles & Users
