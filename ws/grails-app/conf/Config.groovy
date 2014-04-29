@@ -153,14 +153,13 @@ grails.plugin.springsecurity.useBasicAuth = true
 grails.plugin.springsecurity.filterChain.chainMap = [
 
     /* Basic Authentication */
-    '/token/request/**': 'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
-    '/token/clear/**':   'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
-    '/token/delete/**':  'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
-    '/repo/delete/**':   'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
+    '/token/api/**': 'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
+    '/repo/api/**':  'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
 
     /* Rest & Form Authentication */
-    '/api/**':  'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
-    '/repo/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
+    '/api/**':       'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
+    '/token/web/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
+    '/repo/web/**':  'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
 
     /* Form Authentication */
     '/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter'

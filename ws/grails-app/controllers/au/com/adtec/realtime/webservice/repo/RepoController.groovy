@@ -9,7 +9,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile
 @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN"])
 class RepoController {
 
-    static allowedMethods = [list: 'GET', delete: 'DELETE', upload: 'POST', download: 'GET']
+    static allowedMethods = [list: 'GET', delete: ['GET', 'DELETE'], upload: 'POST', download: 'GET']
 
     def repoService
 

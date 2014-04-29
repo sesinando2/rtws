@@ -7,13 +7,16 @@ class UrlMappings {
             }
         }
 
-        "/"(view:"/index")
+        //"/"(view:"/index")
+        "/"(view:"/home")
         "500"(view:'/error')
 
         /* Repo Module */
-        "/repo/$action?/$id?"(controller: "repo")
+        "/repo/web/$action?/$id?"(controller: "repo")
+        "/repo/api/$action?/$id?"(controller: "repo")
 
         /* Token Management */
-        "/token/$action?/$id?"(controller: "token")
+        "/token/web/$action?/$id?"(controller: "token")
+        "/token/api/$action?/$id?"(controller: "token")
 	}
 }
