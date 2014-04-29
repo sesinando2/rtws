@@ -81,8 +81,6 @@ class TokenController {
                 render(status: 404, text: "Unsupported authority: $json.authority")
                 return
         }
-
-        springSecurityService.reauthenticate("admin", "admin:)")
         render(tokenList as JSON)
     }
 }
