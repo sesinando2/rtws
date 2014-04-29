@@ -23,16 +23,17 @@ environments {
             /* In Memory Database
             url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"*/
 
+            // Local MySQL
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
             url = "jdbc:mysql://localhost:3306/webservice"
             username = "root"
             password = ""
 
-            /* ADTEC Postgres
-            driverClassName = "org.postgresql.Driver"
+            // ADTEC Postgres
+            /*driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
-            url = "jdbc:postgresql://10.2.1.120:5432/webservice"
+            url = "jdbc:postgresql://vdev1:5432/webservice"
             username = "adtec"
             password = ""*/
 
@@ -57,18 +58,19 @@ environments {
         dataSource {
             dbCreate = "update"
 
-            /* ADTEC Postgres
+            // Local Postgres Database
             driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
             url = "jdbc:postgresql://localhost:5432/webservice"
             username = "adtec"
-            password = ""*/
+            password = ""
 
+            /* Local MySQL Database
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
             url = "jdbc:mysql://localhost:3306/webservice"
             username = "root"
-            password = ""
+            password = ""*/
 
             properties {
                // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation

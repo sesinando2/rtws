@@ -1,16 +1,10 @@
 package au.com.adtec.realtime.webservice.security
 
-import au.com.adtec.realtime.webservice.repo.FileData
-
 class TokenRestriction {
 
-    FileData fileData
-    int numberOfAccess
+    static belongsTo = [ token:RestToken ]
 
-    static constraints = {
-        fileData nullable: true
-        numberOfAccess min: 0, max: 1024
-    }
+    static transients = ['isRestricted']
 
-    static belongsTo = [token:RestToken]
+    boolean getIsRestricted() { false }
 }

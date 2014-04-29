@@ -9,7 +9,11 @@ class UrlMappings {
 
         "/"(view:"/index")
         "500"(view:'/error')
+
+        /* Repo Module */
         "/repo/$action?/$id?"(controller: "repo")
+
+        /* Token Management */
         "/token/$action?/$id?"(controller: "token")
 	}
 }

@@ -118,6 +118,7 @@ log4j = {
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'
+    // Debug Spring Security Plugin Core
     debug  'com.odobo',
            'grails.app.controllers.com.odobo',
            'grails.app.services.com.odobo',
@@ -127,7 +128,7 @@ log4j = {
 
 //region ADTEC Configurations
 au.com.adtec.rt = [ ip: 'ictest.adtec.com.au', port: 8642  ]
-au.com.adtec.fs = [ root: 'files' ]
+au.com.adtec.security = [ tokenExpiry: 0 ]
 //endregion
 
 // Added by the Spring Security Core plugin:
@@ -146,16 +147,26 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	'/**/css/**':                     ['permitAll'],
 	'/**/images/**':                  ['permitAll'],
 	'/**/favicon.ico':                ['permitAll'],
-    '/token/**':                      ['permitAll'],
     '/**':                            ['isFullyAuthenticated()']
 ]
+grails.plugin.springsecurity.useBasicAuth = true
 grails.plugin.springsecurity.filterChain.chainMap = [
-    '/api/**': 'JOINED_FILTERS',
-    '/repo/**': 'JOINED_FILTERS',
-    '/**': 'JOINED_FILTERS,-basicExceptionTranslationFilter,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter'
+
+    /* Basic Authentication */
+    '/token/request/**': 'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
+    '/token/clear/**':   'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
+    '/token/delete/**':  'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
+    '/repo/delete/**':   'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
+
+    /* Rest & Form Authentication */
+    '/api/**':  'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
+    '/repo/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
+
+    /* Form Authentication */
+    '/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter'
 ]
 grails.plugin.springsecurity.secureChannel.definition = [
-    '/api*/**':    'REQUIRES_SECURE_CHANNEL'
+    '/api*/**': 'REQUIRES_SECURE_CHANNEL'
 ]
 
 grails.plugin.springsecurity.rest.login.failureStatusCode = 401

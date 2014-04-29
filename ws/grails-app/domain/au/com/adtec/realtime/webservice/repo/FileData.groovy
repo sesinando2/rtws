@@ -1,5 +1,7 @@
 package au.com.adtec.realtime.webservice.repo
 
+import au.com.adtec.realtime.webservice.security.DownloadTokenRestriction
+
 class FileData {
 
     String filename
@@ -17,6 +19,10 @@ class FileData {
     }
 
     static transients = ['repoService', 'fileType', 'isImage', 'isVideo' ,'isAudio']
+
+    static hasMany = [restrictions: DownloadTokenRestriction]
+
+    static mappedBy = [restrictions: "fileData"]
 
     FileType getFileType() {
         repoService.getFileType(contentType)
