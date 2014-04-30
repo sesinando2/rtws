@@ -145,6 +145,7 @@ grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'au.com.adtec.r
 grails.plugin.springsecurity.authority.className = 'au.com.adtec.realtime.webservice.security.Role'
 grails.plugin.springsecurity.rememberMe.persistent = true
 grails.plugin.springsecurity.rememberMe.persistentToken.domainClassName = 'au.com.adtec.realtime.webservice.security.AuthenticationToken'
+grails.plugin.springsecurity.logout.postOnly = false
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	'/':                              ['permitAll'],
     '/login':                         ['permitAll'],
