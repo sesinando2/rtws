@@ -126,12 +126,16 @@ log4j = {
            'grails.app.controllers',
            'grails.app.services',
            'org.atmosphere'*/
-    // all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services'
+    environments {
+        development {
+            all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services'
+        }
+    }
 }
 
 // ADTEC Configurations
 au.com.adtec.rt = [ ip: 'ictest.adtec.com.au', port: 8642  ]
-au.com.adtec.security = [ tokenExpiry: 0 ]
+au.com.adtec.security = [ tokenExpiry: 0, localTokenGenerationOnly: false ]
 
 // Spring Security Configurations
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'au.com.adtec.realtime.webservice.security.User'
