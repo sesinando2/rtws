@@ -29,7 +29,8 @@ class TokenController {
 
     def revoke() {
         def tokenList = request?.JSON as String[]
-        RestToken.where { token in tokenList }.each { it.delete() }
+        def tokens = RestToken.where { token in tokenList }.list()
+        RestToken.deleteAll(tokens)
         render([success: true] as JSON)
     }
 

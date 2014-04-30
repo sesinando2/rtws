@@ -75,6 +75,8 @@ grails.project.dependency.resolution = {
         }
         // Image Tools
         compile ":image-tools:1.0.5"
+        // Quartz
+        compile ":quartz:1.0.1"
 
         // plugins needed at runtime but not for compilation
         runtime ":hibernate:3.6.10.10" // or ":hibernate4:4.3.4"

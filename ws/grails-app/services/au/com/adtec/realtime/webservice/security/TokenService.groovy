@@ -10,9 +10,25 @@ import grails.transaction.Transactional
 @Transactional
 class TokenService {
 
+    def grailsApplication
     TokenGenerator tokenGenerator
     TokenStorageService tokenStorageService
     SpringSecurityService springSecurityService
+
+    def cleanUpToken() {
+        def tokenExpiry = grailsApplication.config.au.com.adtec.security.tokenExpiry
+        if (tokenExpiry > 0) {
+            def expiryDate = Calendar.instance
+            expiryDate.add(Calendar.SECOND, -tokenExpiry)
+            def expiredTokens = RestToken.where { dateCreated <= expiryDate.time }.list()
+            if (!expiredTokens.empty) {
+                log.debug("Deleting " + expiredTokens.size() + " tokens...");
+                expiredTokens.each {
+                    if (!it.isValid) it.delete()
+                }
+            }
+        }
+    }
 
     List<String> generateDownloadToken(List<FileData> files, int amount, int accessCount) {
         List<String> tokenList = []

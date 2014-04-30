@@ -128,14 +128,14 @@ log4j = {
            'org.atmosphere'*/
     environments {
         development {
-            all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services'
+            all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.app.jobs'
         }
     }
 }
 
 // ADTEC Configurations
 au.com.adtec.rt = [ ip: 'ictest.adtec.com.au', port: 8642  ]
-au.com.adtec.security = [ tokenExpiry: 0, localTokenGenerationOnly: false ]
+au.com.adtec.security = [ tokenExpiry: 86400, localTokenGenerationOnly: false ]
 
 // Spring Security Configurations
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'au.com.adtec.realtime.webservice.security.User'
@@ -183,4 +183,4 @@ grails.plugin.springsecurity.rest.token.storage.gorm.usernamePropertyName = 'log
 
 // DB Migration Configurations
 grails.plugin.databasemigration.reports.updateOntart = true
-grails.plugin.databasemigration.reports.changelogFileName = changelog.groovy
+grails.plugin.databasemigration.reports.changelogFileName = 'changelog.groovy'
