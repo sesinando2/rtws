@@ -53,10 +53,10 @@ class TokenController {
     }
 
     def request() {
-        /*if (grailsApplication.config.au.com.adtec.security.localTokenGenerationOnly && request.remoteAddr != "127.0.0.1") {
+        if (grailsApplication.config.au.com.adtec.security.localTokenGenerationOnly && request.remoteAddr != "127.0.0.1") {
             render(status: 401)
             return
-        }*/
+        }
 
         def json = request?.JSON as Map
         if (json.isEmpty()) {

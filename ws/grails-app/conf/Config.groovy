@@ -135,7 +135,9 @@ log4j = {
 
 // ADTEC Configurations
 au.com.adtec.rt = [ ip: 'ictest.adtec.com.au', port: 8642  ]
-au.com.adtec.security = [ tokenExpiry: 86400, localTokenGenerationOnly: false ]
+au.com.adtec.security = [
+        tokenExpiry: 86400, // In Seconds
+        localTokenGenerationOnly: false ]
 
 // Spring Security Configurations
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'au.com.adtec.realtime.webservice.security.User'
