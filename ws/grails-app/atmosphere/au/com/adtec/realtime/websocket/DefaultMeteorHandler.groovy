@@ -51,7 +51,7 @@ class DefaultMeteorHandler extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        def TAG = "$TAG_BASE::doGet]\t"
+        def TAG = "$TAG_BASE::doPost]\t"
         String mapping = request?.pathInfo == null ? "/atmosphere" : "/atmosphere" + request.pathInfo
 
         Broadcaster b = BroadcasterFactory.getDefault().lookup(DefaultBroadcaster.class, mapping)

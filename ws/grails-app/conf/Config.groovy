@@ -130,6 +130,9 @@ log4j = {
         development {
             all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.app.jobs'
         }
+        production {
+            error 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.app.jobs'
+        }
     }
 }
 
@@ -186,4 +189,8 @@ grails.plugin.springsecurity.rest.token.storage.gorm.usernamePropertyName = 'log
 
 // DB Migration Configurations
 grails.plugin.databasemigration.reports.updateOntart = true
-grails.plugin.databasemigration.reports.changelogFileName = 'changelog.groovy'
+environments {
+    development {
+        grails.plugin.databasemigration.reports.dropOnStart = true
+    }
+}
