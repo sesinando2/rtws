@@ -39,6 +39,11 @@ class FileData {
     boolean getIsAudio() {
         fileType == FileType.AUDIO
     }
+
+
+    def beforeDelete() {
+        FileDataLog.where { fileData == this }.deleteAll()
+    }
 }
 
 enum FileType { IMAGE, VIDEO, AUDIO, OTHER }

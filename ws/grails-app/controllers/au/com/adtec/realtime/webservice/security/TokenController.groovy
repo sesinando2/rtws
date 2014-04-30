@@ -2,7 +2,6 @@ package au.com.adtec.realtime.webservice.security
 
 import au.com.adtec.realtime.webservice.repo.RepoService
 import grails.converters.JSON
-import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.springsecurity.annotation.Secured
 
 @Secured(["ROLE_ADMIN"])
@@ -10,9 +9,8 @@ class TokenController {
 
     TokenService tokenService
     RepoService repoService
-    SpringSecurityService springSecurityService
 
-    static allowedMethods = [list: 'GET', clear: ['GET', 'DELETE'], delete: ['GET', 'DELETE'], request: ['GET', 'POST'], password: ['GET', 'POST']]
+    static allowedMethods = [list: 'GET', clear: ['GET', 'DELETE'], delete: ['GET', 'DELETE'], request: ['GET', 'POST'], password: ['GET', 'POST'], revoke: ['GET', 'POST']]
 
     def index() {
         redirect(action: 'list')
@@ -25,6 +23,12 @@ class TokenController {
 
     def clear() {
         RestToken.deleteAll(RestToken.list())
+        render([success: true] as JSON)
+    }
+
+    def revoke() {
+        def tokenList = request?.JSON as String[]
+        RestToken.where { token in tokenList }.each { it.delete() }
         render([success: true] as JSON)
     }
 

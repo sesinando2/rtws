@@ -50,7 +50,7 @@ class RestToken {
     }
 
     def beforeDelete() {
-        FileDataLog.where { token == this }.updateAll(token: null)
+        FileDataLog.where { token == this }.deleteAll()
         TokenRestriction.where { token == this }.deleteAll()
     }
 }
