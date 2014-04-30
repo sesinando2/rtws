@@ -35,7 +35,7 @@ grails.mime.types = [ // the first one is the default format
 //grails.urlmapping.cache.maxsize = 1000
 
 // What URL patterns should be processed by the resources plugin
-grails.resources.adhoc.patterns = ['/images/*', '/css/*', '/js/*', '/plugins/*']
+grails.resources.adhoc.patterns = ['/images/*', '/css/*', '/js/*', '//*']
 grails.resources.adhoc.includes = ['/images/**', '/css/**', '/js/**', '/plugins/**']
 
 // Legacy setting for codec used to encode data with ${}
@@ -117,23 +117,23 @@ log4j = {
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'
-    // Debug Spring Security Plugin Core
-    debug  'com.odobo',
+    // Enable debugging
+    /* debug  'com.odobo',
            'grails.app.controllers.com.odobo',
            'grails.app.services.com.odobo',
            'org.pac4j',
            'org.springframework.security',
            'grails.app.controllers',
            'grails.app.services',
-           'org.atmosphere'
+           'org.atmosphere'*/
+    // all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services'
 }
 
-//region ADTEC Configurations
+// ADTEC Configurations
 au.com.adtec.rt = [ ip: 'ictest.adtec.com.au', port: 8642  ]
 au.com.adtec.security = [ tokenExpiry: 0 ]
-//endregion
 
-// Added by the Spring Security Core plugin:
+// Spring Security Configurations
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'au.com.adtec.realtime.webservice.security.User'
 grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'au.com.adtec.realtime.webservice.security.UserRole'
 grails.plugin.springsecurity.authority.className = 'au.com.adtec.realtime.webservice.security.Role'
@@ -170,8 +170,13 @@ grails.plugin.springsecurity.secureChannel.definition = [
     '/api*/**': 'REQUIRES_SECURE_CHANNEL'
 ]
 
+// Spring Security Rest Configurations
 grails.plugin.springsecurity.rest.login.failureStatusCode = 401
 grails.plugin.springsecurity.rest.token.storage.useGorm = true
 grails.plugin.springsecurity.rest.token.storage.gorm.tokenDomainClassName = 'au.com.adtec.realtime.webservice.security.RestToken'
 grails.plugin.springsecurity.rest.token.storage.gorm.tokenValuePropertyName = 'token'
 grails.plugin.springsecurity.rest.token.storage.gorm.usernamePropertyName = 'login'
+
+// DB Migration Configurations
+grails.plugin.databasemigration.reports.updateOntart = true
+grails.plugin.databasemigration.reports.changelogFileName = changelog.groovy

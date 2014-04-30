@@ -7,7 +7,7 @@ class FileData {
     String filename
     byte[] data
     String contentType
-    String incidentId
+    Integer incidentId
 
     RepoService repoService
 
@@ -15,7 +15,7 @@ class FileData {
         filename blank: false, nullable: false
         data nullable: false, maxSize: 1024 * 1024
         contentType blank: true, nullable: true
-        incidentId blank: true, nullable: true
+        incidentId nullable: true
     }
 
     static transients = ['repoService', 'fileType', 'isImage', 'isVideo' ,'isAudio']

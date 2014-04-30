@@ -20,6 +20,12 @@ public class WebServiceClient {
     JSONParser parser;
     private Client client;
 
+    /**
+     * Client for Real Time Web Service
+     * @param baseUrl   URL where the web service is deployed. Should end with a '/'.
+     * @param username  Username to access the web service. Make sure to use the admin user.
+     * @param password  Password for the admin user.
+     */
     public WebServiceClient(String baseUrl, String username, String password) {
         this.baseUrl = baseUrl;
         parser = new JSONParser();
@@ -27,6 +33,10 @@ public class WebServiceClient {
         this.client.addFilter(new HTTPBasicAuthFilter(username, password));
     }
 
+    /**
+     * Request an upload token from the server.
+     * @return  Value of the token
+     */
     public String requestUploadToken() {
         JSONObject body = new JSONObject();
         body.put("authority", "ROLE_REPO_UPLOAD");
@@ -43,22 +53,12 @@ public class WebServiceClient {
         }
     }
 
-    public boolean revokeToken(String...tokens) {
-        JSONArray tokensJSON = new JSONArray();
-        for (String token : tokens) { tokensJSON.add(token); }
-        WebResource resource = client.resource(baseUrl + "token/api/revoke");
-        resource.type("application/json");
-        String response = resource.post(String.class, tokensJSON.toJSONString());
-        try {
-            JSONObject jsonResult = (JSONObject) parser.parse(response);
-            return (Boolean) jsonResult.get("success");
-        } catch (ParseException e) {
-            System.out.println("Exception on WebServiceClient.revokeToken while trying to parse response: " + response);
-            e.printStackTrace();
-        }
-        return false;
-    }
-
+    /**
+     * Request download tokens for a particular resource in the server.
+     * @param amount    Amount of token to generate.
+     * @param fileIds   Ids of the resource file.
+     * @return  Array of the generated tokens.
+     */
     public String[] requestDownloadTokens(int amount, int...fileIds) {
         if (amount <= 0) amount = 1;
         JSONArray ids = new JSONArray();
@@ -77,5 +77,26 @@ public class WebServiceClient {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * Revoke tokens
+     * @param tokens Tokens to revoke
+     * @return  Whether the tokens has been successfully revoked of not.
+     */
+    public boolean revokeToken(String...tokens) {
+        JSONArray tokensJSON = new JSONArray();
+        for (String token : tokens) { tokensJSON.add(token); }
+        WebResource resource = client.resource(baseUrl + "token/api/revoke");
+        resource.type("application/json");
+        String response = resource.post(String.class, tokensJSON.toJSONString());
+        try {
+            JSONObject jsonResult = (JSONObject) parser.parse(response);
+            return (Boolean) jsonResult.get("success");
+        } catch (ParseException e) {
+            System.out.println("Exception on WebServiceClient.revokeToken while trying to parse response: " + response);
+            e.printStackTrace();
+        }
+        return false;
     }
 }

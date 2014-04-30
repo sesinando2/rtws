@@ -17,9 +17,6 @@ hibernate {
 environments {
     development {
         dataSource {
-
-            dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
-
             /* In Memory Database
             url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"*/
 
@@ -30,13 +27,19 @@ environments {
             username = "root"
             password = ""*/
 
-            // ADTEC Postgres
+            // Local Postgres
             driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
-            url = "jdbc:postgresql://ictest.adtec.com.au:5432/webservice"
+            url = "jdbc:postgresql://localhost:5432/webservice_test"
             username = "adtec"
             password = ""
 
+            // ADTEC Postgres
+            /* driverClassName = "org.postgresql.Driver"
+            dialect = "org.hibernate.dialect.PostgreSQLDialect"
+            url = "jdbc:postgresql://ictest.adtec.com.au:5432/webservice"
+            username = "adtec"
+            password = ""*/
         }
 
         /* ADTEC Comcent Data Source
@@ -56,8 +59,6 @@ environments {
     }
     production {
         dataSource {
-            dbCreate = "update"
-
             // Local Postgres Database
             driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
