@@ -9,6 +9,7 @@ class RestToken {
     Date dateCreated
 
     def grailsApplication
+    def sessionFactory
 
     static constraints = {}
 
@@ -16,7 +17,7 @@ class RestToken {
         autoTimestamp true
     }
 
-    static transients = ['isValid', 'isExpired', 'isAllowed']
+    static transients = ['isValid', 'isExpired', 'isAllowed', 'grailsApplication', 'sessionFactory']
 
     boolean getIsValid() {
         return !isExpired && isAllowed
@@ -48,7 +49,13 @@ class RestToken {
     }
 
     def beforeDelete() {
-        FileDataLog.where { token == this }.deleteAll()
+        final String query = "update file_data_log set token_id=null where token_id=:tokenId"
+        final session  = sessionFactory.currentSession
+        final sqlQuery = session.createSQLQuery(query)
+        sqlQuery.with {
+            setLong('tokenId', id)
+            executeUpdate()
+        }
         TokenRestriction.where { token == this }.deleteAll()
     }
 }
