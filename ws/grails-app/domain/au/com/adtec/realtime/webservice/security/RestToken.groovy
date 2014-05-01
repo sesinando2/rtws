@@ -26,10 +26,8 @@ class RestToken {
         int tokenTimeToLive = grailsApplication.config.au.com.adtec.security.tokenExpiry
         if (tokenTimeToLive == 0) return false
         def cal = Calendar.instance
-        cal.setTime(dateCreated)
-        cal.add(Calendar.SECOND, tokenTimeToLive)
-        def now = Calendar.instance
-        return now.time < cal.time
+        cal.add(Calendar.SECOND, -tokenTimeToLive)
+        return dateCreated <= cal.time
     }
 
     boolean getIsAllowed() {

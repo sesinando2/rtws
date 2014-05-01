@@ -239,4 +239,5 @@ databaseChangeLog = {
 	}
 
 	include file: 'add-incident-id-to-filedata.groovy'
+    include file: 'add-date-created-on-file-data.groovy'
 }

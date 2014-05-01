@@ -128,7 +128,7 @@ log4j = {
            'org.atmosphere'*/
     environments {
         development {
-            all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.app.jobs'
+            all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.app.jobs', 'grails.plugin.databasemigration'
         }
         production {
             error 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.app.jobs'
@@ -188,9 +188,4 @@ grails.plugin.springsecurity.rest.token.storage.gorm.tokenValuePropertyName = 't
 grails.plugin.springsecurity.rest.token.storage.gorm.usernamePropertyName = 'login'
 
 // DB Migration Configurations
-grails.plugin.databasemigration.reports.updateOntart = true
-environments {
-    development {
-        grails.plugin.databasemigration.reports.dropOnStart = true
-    }
-}
+grails.plugin.databasemigration.updateOnStart = true

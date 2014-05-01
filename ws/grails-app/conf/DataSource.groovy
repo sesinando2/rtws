@@ -34,12 +34,12 @@ environments {
             username = "adtec"
             password = ""
 
-            // ADTEC Postgres
-            /* driverClassName = "org.postgresql.Driver"
+            // ADTEC Postgres Test
+             driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
-            url = "jdbc:postgresql://ictest.adtec.com.au:5432/webservice"
+            url = "jdbc:postgresql://ictest.adtec.com.au:5432/webservice_test"
             username = "adtec"
-            password = ""*/
+            password = ""
         }
 
         /* ADTEC Comcent Data Source
@@ -62,7 +62,7 @@ environments {
             // Local Postgres Database
             driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
-            url = "jdbc:postgresql://localhost:5432/webservice"
+            url = "jdbc:postgresql://ictest.adtec.com.au:5432/webservice"
             username = "adtec"
             password = ""
 

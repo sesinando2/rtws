@@ -8,6 +8,7 @@ class FileData {
     byte[] data
     String contentType
     Integer incidentId
+    Date dateCreated
 
     RepoService repoService
 

@@ -23,13 +23,14 @@ class RepoController {
     def upload() {
         if (request instanceof MultipartHttpServletRequest) {
             RestToken token = RestToken.findByToken(request.getHeader('X-Auth-Token'))
-            if (token?.isAllowedForFileCount(request.fileNames.size()) || repoService.isAdmin) {
+            if ((token && token?.isAllowedForFileCount(request.fileNames.size())) || repoService.isAdmin) {
+                log.debug("Authorized. Saving files...")
                 def urls = [:]
                 for (def fileName : request.fileNames) {
                     if (token && token?.isValid || repoService.isAdmin) {
                         CommonsMultipartFile file = request.getFile(fileName)
                         FileData fileData = repoService.createFile(file, token, params)
-                        if (fileData) urls.put(fileData.id, g.createLink(action: 'download', id: fileData?.id, absolute: true))
+                        if (fileData) urls.put(fileData.id.toString(), g.createLink(action: 'download', id: fileData?.id, absolute: true))
                     }
                 }
                 if (token && !token?.isValid) token.delete()

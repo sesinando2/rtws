@@ -59,7 +59,7 @@ public class WebServiceClient {
      * @param fileIds   Ids of the resource file.
      * @return  Array of the generated tokens.
      */
-    public String[] requestDownloadTokens(int amount, int...fileIds) {
+    public String[] requestDownloadTokens(int amount, Integer...fileIds) {
         if (amount <= 0) amount = 1;
         JSONArray ids = new JSONArray();
         for (int id : fileIds) { ids.add(id); }
