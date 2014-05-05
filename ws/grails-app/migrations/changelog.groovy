@@ -238,6 +238,7 @@ databaseChangeLog = {
 		addForeignKeyConstraint(baseColumnNames: "user_id", baseTableName: "user_role", constraintName: "FK143BF46AB75D5978", deferrable: "false", initiallyDeferred: "false", referencedColumnNames: "id", referencedTableName: "user_table", referencesUniqueColumn: "false")
 	}
 
-	include file: 'add-incident-id-to-filedata.groovy'
+	include file: 'add-incident-id-to-file-data.groovy'
     include file: 'add-date-created-on-file-data.groovy'
+    include file: 'add-video-file-name.groovy'
 }

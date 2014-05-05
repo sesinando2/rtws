@@ -56,6 +56,8 @@ grails.project.dependency.resolution = {
         // Required for Spring Security REST
         mavenRepo 'http://repo.spring.io/milestone'
         mavenRepo 'https://oss.sonatype.org/content/repositories/snapshots'
+
+        mavenRepo 'http://xuggle.googlecode.com/svn/trunk/repo/share/java/'
     }
 
     dependencies {
@@ -63,6 +65,8 @@ grails.project.dependency.resolution = {
         runtime 'mysql:mysql-connector-java:5.1.27'
         // runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
         runtime "postgresql:postgresql:9.1-901.jdbc3"
+        // Xuggler
+        compile 'xuggle:xuggle-xuggler:5.4'
     }
 
     plugins {
@@ -83,7 +87,6 @@ grails.project.dependency.resolution = {
         compile ":image-tools:1.0.5"
         // Quartz
         compile ":quartz:1.0.1"
-
         // plugins needed at runtime but not for compilation
         runtime ":hibernate:3.6.10.10" // or ":hibernate4:4.3.4"
         runtime ":database-migration:1.4.0-SNAPSHOT"

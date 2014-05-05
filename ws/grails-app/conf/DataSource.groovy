@@ -28,14 +28,14 @@ environments {
             password = ""*/
 
             // Local Postgres
-            driverClassName = "org.postgresql.Driver"
+            /*driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
             url = "jdbc:postgresql://localhost:5432/webservice_test"
             username = "adtec"
-            password = ""
+            password = ""*/
 
             // ADTEC Postgres Test
-             driverClassName = "org.postgresql.Driver"
+            driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
             url = "jdbc:postgresql://ictest.adtec.com.au:5432/webservice_test"
             username = "adtec"

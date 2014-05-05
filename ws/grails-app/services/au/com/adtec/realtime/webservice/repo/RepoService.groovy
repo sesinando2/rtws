@@ -22,6 +22,8 @@ class RepoService extends AbstractService {
     static final String USER_REPO_UPLOAD = "repo_upload"
     //endregion
 
+    def videoService
+
     def initializeRoles() {
         Roles.REPO_ADMIN = createRole(ROLE_REPO_ADMIN)
         Roles.REPO_READ = createRole(ROLE_REPO_READ)
@@ -34,22 +36,26 @@ class RepoService extends AbstractService {
         Users.REPO_UPLOAD = createUser(USER_REPO_UPLOAD, "admin:)", Roles.REPO_UPLOAD, Roles.REPO_READ)
     }
 
+    FileData createFile(CommonsMultipartFile file) {
+        new FileData(filename: file.originalFilename, data: file.bytes, contentType: file.contentType).save()
+    }
+
     FileData createFile(CommonsMultipartFile file, RestToken restToken, Map params) {
         FileData fileData
         switch (getFileType(file.contentType)) {
             case FileType.IMAGE:
                 fileData = createImageFile(file, params)
                 break;
+            case FileType.VIDEO:
+                fileData = createFile(file)
+                videoService.createVideoThumbnail(fileData)
+                break
             default:
                 fileData = createFile(file)
-                break;
+                break
             }
         createUploadLog(fileData, restToken)
         return fileData
-    }
-
-    FileData createFile(CommonsMultipartFile file) {
-        new FileData(filename: file.originalFilename, data: file.bytes, contentType: file.contentType).save()
     }
 
     FileData createImageFile(CommonsMultipartFile file, Map params) {
