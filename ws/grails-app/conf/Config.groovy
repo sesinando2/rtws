@@ -117,17 +117,9 @@ log4j = {
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'
-    // Enable debugging
-    /* debug  'com.odobo',
-           'grails.app.controllers.com.odobo',
-           'grails.app.services.com.odobo',
-           'org.pac4j',
-           'org.springframework.security',
-           'grails.app.controllers',
-           'grails.app.services',
-           'org.atmosphere'*/
     environments {
         development {
+            // debug  'com.odobo', 'grails.app.controllers.com.odobo', 'grails.app.services.com.odobo', 'org.pac4j', 'org.springframework.security', 'grails.app.controllers', 'grails.app.services', 'org.atmosphere'
             all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.app.jobs', 'grails.plugin.databasemigration'
         }
         production {

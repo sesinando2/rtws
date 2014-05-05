@@ -31,11 +31,11 @@ class RepoService extends AbstractService {
     def initializeUsers() {
         Users.REPO_ADMIN = createUser(USER_REPO_ADMIN, "admin:)", Roles.REPO_ADMIN)
         Users.REPO_READ = createUser(USER_REPO_READ, "admin:)", Roles.REPO_READ)
-        Users.REPO_UPLOAD = createUser(USER_REPO_UPLOAD, "admin:)", Roles.REPO_UPLOAD)
+        Users.REPO_UPLOAD = createUser(USER_REPO_UPLOAD, "admin:)", Roles.REPO_UPLOAD, Roles.REPO_READ)
     }
 
     FileData createFile(CommonsMultipartFile file, RestToken restToken, Map params) {
-        FileData fileData = null
+        FileData fileData
         switch (getFileType(file.contentType)) {
             case FileType.IMAGE:
                 fileData = createImageFile(file, params)

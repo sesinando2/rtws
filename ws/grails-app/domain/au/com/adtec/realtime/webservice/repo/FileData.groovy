@@ -44,6 +44,7 @@ class FileData {
 
     def beforeDelete() {
         FileDataLog.where { fileData == this }.deleteAll()
+        DownloadTokenRestriction.where { fileData == this }.deleteAll()
     }
 }
 

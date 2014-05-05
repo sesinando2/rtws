@@ -15,7 +15,7 @@ abstract class AbstractService {
         Role.findByAuthority(authority) ?: new Role(authority: authority).save()
     }
 
-    User createUser(String username, String password, Role roles) {
+    User createUser(String username, String password, Role... roles) {
         User user = User.findByUsername(username) ?: new User(username: username, password: password).save()
         for (Role role : roles)
             if (!user.authorities.contains(role))

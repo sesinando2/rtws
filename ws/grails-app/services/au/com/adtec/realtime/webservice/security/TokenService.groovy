@@ -6,6 +6,7 @@ import com.odobo.grails.plugin.springsecurity.rest.token.generation.TokenGenerat
 import com.odobo.grails.plugin.springsecurity.rest.token.storage.TokenStorageService
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.transaction.Transactional
+import org.apache.commons.logging.Log
 
 @Transactional
 class TokenService {
@@ -48,6 +49,11 @@ class TokenService {
         return [tokenValue]
     }
 
+    def createDownloadTokenRestriction(String token, FileData fileData, int accessCount) {
+        RestToken restToken = RestToken.findByToken(token)
+        if (restToken) new DownloadTokenRestriction(token: restToken, fileData: fileData, numberOfAccess: accessCount).save(flush: true)
+    }
+
     private String generateToken(User user) {
         springSecurityService.reauthenticate(user?.username, "admin:)")
         String token = tokenGenerator.generateToken()
@@ -59,11 +65,6 @@ class TokenService {
         files.each {
             createDownloadTokenRestriction(token, it, accessCount)
         }
-    }
-
-    private createDownloadTokenRestriction(String token, FileData fileData, int accessCount) {
-        RestToken restToken = RestToken.findByToken(token)
-        if (restToken) new DownloadTokenRestriction(token: restToken, fileData: fileData, numberOfAccess: accessCount).save(flush: true)
     }
 
     private createUploadRestriction(String token, int fileCount) {
