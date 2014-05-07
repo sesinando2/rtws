@@ -14,7 +14,7 @@ class FileData {
 
     static constraints = {
         filename blank: false, nullable: false
-        data nullable: false, maxSize: 1024 * 1024
+        data nullable: false, maxSize: 1024 * 1024 * 25
         contentType blank: true, nullable: true
         incidentId nullable: true
     }

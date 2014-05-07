@@ -45,10 +45,10 @@ class RepoService extends AbstractService {
         switch (getFileType(file.contentType)) {
             case FileType.IMAGE:
                 fileData = createImageFile(file, params)
-                break;
+                break
             case FileType.VIDEO:
-                fileData = createFile(file)
-                videoService.createVideoThumbnail(fileData)
+                fileData = createVideoFileData(file)
+                videoService.createVideoThumbnail(fileData as VideoFileData)
                 break
             default:
                 fileData = createFile(file)
@@ -66,6 +66,10 @@ class RepoService extends AbstractService {
                 timestamp: params?.timestamp,
                 location: params?.location
         ).save();
+    }
+
+    VideoFileData createVideoFileData(CommonsMultipartFile file) {
+        new VideoFileData(filename: file.originalFilename, data: file.bytes, contentType: file.contentType).save()
     }
 
     FileType getFileType(String contentType) {
@@ -86,8 +90,15 @@ class RepoService extends AbstractService {
             fileData = FileData.get(id)
         }
 
-        if (fileData?.isImage && params?.thumb && params?.thumb?.toString()?.number) {
-            fileData = resizeImage(fileData, params)
+        if (params?.thumb && params?.thumb?.toString()?.number) {
+            switch (fileData?.fileType) {
+                case FileType.IMAGE:
+                    fileData = resizeImage(fileData.data, params)
+                    break
+                case FileType.VIDEO:
+                    if (fileData instanceof VideoFileData) fileData = resizeImage(fileData.thumbData, params)
+                    break
+            }
         }
 
         return fileData
@@ -110,13 +121,13 @@ class RepoService extends AbstractService {
         return authorities.contains('ROLE_ADMIN') || authorities.contains('ROLE_REPO_ADMIN')
     }
 
-    private FileData resizeImage(FileData fileData, Map params) {
-        fileData = new FileData(fileData.properties)
+    private FileData resizeImage(byte[] data, Map params) {
+        def fileData = new FileData(contentType: "image/jpeg")
         ImageTool imageTool = new ImageTool()
-        imageTool.load(fileData.data)
+        imageTool.load(data)
         imageTool.thumbnail(params?.thumb as int)
         fileData.data = imageTool.getBytes("JPEG")
-        fileData
+        return fileData
     }
 
     private FileData getFileFromToken(RestToken restToken, int id) {

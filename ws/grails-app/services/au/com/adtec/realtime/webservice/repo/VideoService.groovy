@@ -5,6 +5,7 @@ import com.xuggle.mediatool.MediaListenerAdapter
 import com.xuggle.mediatool.ToolFactory
 import com.xuggle.mediatool.event.IVideoPictureEvent
 import com.xuggle.xuggler.Global
+import com.xuggle.xuggler.IContainer
 import grails.transaction.Transactional
 
 import javax.imageio.ImageIO
@@ -13,47 +14,59 @@ import java.awt.image.BufferedImage
 @Transactional
 class VideoService {
 
-    public static final double SECONDS_BETWEEN_FRAMES = 15;
-    public static final long MICRO_SECONDS_BETWEEN_FRAMES = (long) (Global.DEFAULT_PTS_PER_SECOND * SECONDS_BETWEEN_FRAMES);
-
-    def createVideoThumbnail(FileData videoFileData) {
+    def createVideoThumbnail(VideoFileData videoFileData) {
         File file = new File("$videoFileData.id-$videoFileData.filename")
         FileOutputStream fos = new FileOutputStream(file)
         fos << videoFileData.data
-        fos.flush()
         fos.close()
-
-        IMediaReader reader = ToolFactory.makeReader(file.absoluteFile)
+        IContainer container = IContainer.make()
+        container.open(file.absolutePath, IContainer.Type.READ, null)
+        IMediaReader reader = ToolFactory.makeReader(container)
         reader.setBufferedImageTypeToGenerate(BufferedImage.TYPE_3BYTE_BGR)
-        reader.addListener(new ImageSnapListener())
+        def snapListener = new ImageSnapListener((container.duration/3).longValue())
+        reader.addListener(snapListener)
         while (reader.readPacket() == null);
+        container.close()
+        if (file.exists()) file.delete()
+        videoFileData.thumbData = snapListener.thumbnailData
+        videoFileData.thumbContentType = "image/jpg"
     }
 
-    private static class ImageSnapListener extends MediaListenerAdapter {
+    private class ImageSnapListener extends MediaListenerAdapter {
 
-        private static int videStreamIndex = -1;
-        private static long lastPtsWrite = Global.NO_PTS;
+        private long snapInterval
+        private int videoStreamIndex = -1
+        private long lastPtsWrite = Global.NO_PTS
+        private int writeCounter = 0
+        private byte[] thumbnailData
+
+        ImageSnapListener(long snapInterval) {
+            this.snapInterval = snapInterval
+        }
 
         public void onVideoPicture(IVideoPictureEvent event) {
-            if (event.streamIndex != videStreamIndex) {
-                if (videStreamIndex == -1) {
-                    videStreamIndex = event.streamIndex
-                } else {
-                    return;
-                }
+            if (event.streamIndex != videoStreamIndex) {
+                if (videoStreamIndex == -1)
+                    videoStreamIndex = event.streamIndex
+                else return
             }
 
-            if (lastPtsWrite == Global.NO_PTS) {
-                lastPtsWrite = event.timeStamp - MICRO_SECONDS_BETWEEN_FRAMES
-            }
+            if (lastPtsWrite == Global.NO_PTS)
+                lastPtsWrite = event.timeStamp - snapInterval
 
-            if (event.timeStamp - lastPtsWrite >= MICRO_SECONDS_BETWEEN_FRAMES) {
-
+            if (event.timeStamp - lastPtsWrite >= snapInterval) {
+                if (++writeCounter == 2)
+                    snapFrame(event.image)
+                lastPtsWrite += snapInterval
             }
         }
 
-        private String dumpImageToFile(BufferedImage image) {
-            ImageIO.write(image, "png", System.currentTimeMillis())
+        private void snapFrame(BufferedImage image) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream()
+            ImageIO.write(image, "jpg", bos)
+            thumbnailData = bos.toByteArray()
         }
+
+        def getThumbnailData() { thumbnailData }
     }
 }

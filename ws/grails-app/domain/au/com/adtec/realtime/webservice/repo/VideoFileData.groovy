@@ -3,10 +3,10 @@ package au.com.adtec.realtime.webservice.repo
 class VideoFileData extends FileData {
 
     byte[] thumbData
-    String thumbExtension
+    String thumbContentType
 
     static constraints = {
-        thumbData nullable: true
-        thumbExtension nullable: true
+        thumbData nullable: true, maxSize: 1024 * 1024 * 10
+        thumbContentType nullable: true
     }
 }

@@ -56,9 +56,7 @@ class RepoController {
             if (file) {
                 if (token && !token?.isValid) token.delete()
                 response.setHeader("Content-disposition", "filename=$file.filename")
-                response.contentType = file.contentType
                 response.outputStream << file.data
-                response.outputStream.flush()
                 return
             } else {
                 response.status = 404;
