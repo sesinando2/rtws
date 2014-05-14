@@ -6,8 +6,12 @@ import au.com.adtec.realtime.webservice.security.RestToken
 import au.com.adtec.realtime.webservice.security.Role
 import au.com.adtec.realtime.webservice.security.User
 import grails.transaction.Transactional
+import org.codehaus.groovy.grails.io.support.ResourceLoader
 import org.grails.plugins.imagetools.ImageTool
 import org.springframework.web.multipart.commons.CommonsMultipartFile
+
+import javax.imageio.ImageIO
+import javax.media.jai.JAI
 
 @Transactional
 class RepoService extends AbstractService {
@@ -23,6 +27,7 @@ class RepoService extends AbstractService {
     //endregion
 
     def videoService
+    def grailsResourceLocator
 
     def initializeRoles() {
         Roles.REPO_ADMIN = createRole(ROLE_REPO_ADMIN)
@@ -91,17 +96,22 @@ class RepoService extends AbstractService {
         }
 
         if (params?.thumb && params?.thumb?.toString()?.number) {
-            switch (fileData?.fileType) {
-                case FileType.IMAGE:
-                    fileData = resizeImage(fileData.data, params)
-                    break
-                case FileType.VIDEO:
-                    if (fileData instanceof VideoFileData) fileData = resizeImage(fileData.thumbData, params)
-                    break
-            }
+            fileData = getFileThumbnail(fileData, params)
         }
 
         return fileData
+    }
+
+    private FileData getFileThumbnail(FileData fileData, Map params) {
+        switch (fileData?.fileType) {
+            case FileType.IMAGE:
+                fileData = resizeImage(fileData, params)
+                break
+            case FileType.VIDEO:
+                if (fileData instanceof VideoFileData) fileData = resizeImage(fileData as VideoFileData, params)
+                break
+        }
+        fileData
     }
 
     List<FileData> getFiles(id) {
@@ -121,13 +131,20 @@ class RepoService extends AbstractService {
         return authorities.contains('ROLE_ADMIN') || authorities.contains('ROLE_REPO_ADMIN')
     }
 
-    private FileData resizeImage(byte[] data, Map params) {
-        def fileData = new FileData(contentType: "image/jpeg")
+    private FileData resizeImage(FileData fileData, Map params) {
+        def thumbnail = new FileData(contentType: "image/jpeg", filename: "$fileData.filename-thumb.jpg")
         ImageTool imageTool = new ImageTool()
-        imageTool.load(data)
-        imageTool.thumbnail(params?.thumb as int)
-        fileData.data = imageTool.getBytes("JPEG")
-        return fileData
+        imageTool.load(fileData instanceof VideoFileData ? fileData.thumbData : fileData.data)
+        def thumbSize = params?.thumb as int
+        imageTool.thumbnail(thumbSize)
+        if (fileData instanceof VideoFileData) {
+            imageTool.swapSource()
+            def alpha = grailsResourceLocator.findResourceForURI("images/play-button-overlay.png").file.absolutePath
+            imageTool.loadMask(alpha)
+            imageTool.applyMask()
+        }
+        thumbnail.data = imageTool.getBytes("JPEG")
+        return thumbnail
     }
 
     private FileData getFileFromToken(RestToken restToken, int id) {

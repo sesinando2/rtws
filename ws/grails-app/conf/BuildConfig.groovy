@@ -66,7 +66,9 @@ grails.project.dependency.resolution = {
         // runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
         runtime "postgresql:postgresql:9.1-901.jdbc3"
         // Xuggler
-        compile 'xuggle:xuggle-xuggler:5.4'
+        runtime('xuggle:xuggle-xuggler:5.4') {
+            excludes "ch.qos.logback:logback-classic:1.0.0"
+        }
     }
 
     plugins {
@@ -80,9 +82,7 @@ grails.project.dependency.resolution = {
         compile ":atmosphere-meteor:0.8.3"
         // Spring Security Rest Plugin Comcent
         compile ":spring-security-core:2.0-RC2"
-        compile ":spring-security-rest:1.3.4-comcent", {
-            excludes: 'spring-security-core'
-        }
+        compile ":spring-security-rest:1.3.4-comcent"
         // Image Tools
         compile ":image-tools:1.0.5"
         // Quartz

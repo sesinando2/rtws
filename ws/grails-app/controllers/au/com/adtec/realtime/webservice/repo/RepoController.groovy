@@ -23,7 +23,7 @@ class RepoController {
     @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN", "ROLE_REPO_UPLOAD"])
     def upload() {
         if (request instanceof MultipartHttpServletRequest) {
-            RestToken restToken = RestToken.findByToken(request.getHeader('X-Auth-Token'))
+            RestToken restToken = RestToken.findByToken(token)
             if ((restToken && restToken?.isAllowedForFileCount(request.fileNames.size())) || repoService.isAdmin) {
                 log.debug("Authorized. Saving files...")
                 def urls = [:]
@@ -50,7 +50,7 @@ class RepoController {
 
     @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN", "ROLE_REPO_READ"])
     def download(int id) {
-        RestToken token = RestToken.findByToken(request.getHeader('X-Auth-Token'))
+        RestToken token = RestToken.findByToken(token)
         if (repoService.isAdmin || (token && token.isAllowedForFile(id))) {
             FileData file = repoService.getFile(id, token, params)
             if (file) {
@@ -85,5 +85,9 @@ class RepoController {
     def purge() {
         FileData.deleteAll(FileData.all)
         redirect(action: "index")
+    }
+
+    private def getToken() {
+        RestToken.findByToken(request.getHeader('X-Auth-Token')) ?: request.getParameter('token')
     }
 }

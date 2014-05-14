@@ -1,23 +1,11 @@
 package au.com.adtec.realtime.webservice.client;
 
-import com.mashape.unirest.http.Headers;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import org.apache.http.HttpException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.nio.IOControl;
-import org.apache.http.nio.client.methods.AsyncByteConsumer;
-import org.apache.http.nio.client.methods.HttpAsyncMethods;
-import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
-import org.apache.http.protocol.HttpContext;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -27,12 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +23,7 @@ public class WebServiceClient {
 
     public static final String TOKEN_REVOKE_URL = "token/api/revoke";
     public static final String TOKEN_REQUEST_URL = "token/api/request";
+    public static final String REPO_DOWNLOAD_URL = "repo/web/download/";
     private String baseUrl;
 
     JSONParser parser;
@@ -129,42 +113,18 @@ public class WebServiceClient {
         return false;
     }
 
-    public String download(String token, int fileId) throws IOException {
+    public File download(String token, int fileId) throws IOException {
         return download(token, fileId, null);
     }
 
-    public String download(String token, int fileId, String fileName) throws IOException {
+    public File download(String token, int fileId, String fileName) throws IOException {
         FileOutputStream fos = null;
         try {
-            HttpResponse<InputStream> response = Unirest.get(baseUrl + "repo/web/download/" + fileId).header("X-Auth-Token", token).asBinary();
+            HttpResponse<InputStream> response = Unirest.get(baseUrl + REPO_DOWNLOAD_URL + fileId).header("X-Auth-Token", token).asBinary();
             InputStream body = response.getBody();
 
-            if (fileName == null) {
-                fileName = getFileName(response);
-                while(new File(fileName).exists()) {
-                    String regexp = ".*(\\d+)\\.(\\w+)$";
-                    System.out.println(fileName + ":" + regexp);
-                    int number = 1;
-                    if (fileName.matches(regexp)) {
-                        Pattern pattern = Pattern.compile(regexp);
-                        Matcher matcher = pattern.matcher(fileName);
-                        if (matcher.matches() && matcher.groupCount() >= 2) {
-                            System.out.println(matcher.group(1));
-                            System.out.println(matcher.group(2));
-                        }
-                    }
-
-                    Pattern pattern = Pattern.compile("(.*)(\\d*)\\.(\\w+)$");
-                    Matcher matcher = pattern.matcher(fileName);
-                    if (matcher.matches() && matcher.groupCount() >= 3) {
-                        String file = matcher.group(1);
-                        String extension = matcher.group(3);
-                        fileName = file + number + "." + extension;
-                    }
-                }
-            }
-
-            System.out.println(fileName);
+            if (fileName == null) fileName = getFileName(response);
+            fileName = generateFileName(fileName);
 
             File file = new File(fileName);
             if (file.exists()) {
@@ -175,10 +135,9 @@ public class WebServiceClient {
 
             byte[] buffer = new byte[1024 * 32];
             int length;
-            while ((length = body.read(buffer)) > 0) {
-                fos.write(buffer, 0, length);
-            }
+            while ((length = body.read(buffer)) > 0) fos.write(buffer, 0, length);
             fos.flush();
+            return file;
         } catch (UnirestException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -189,8 +148,39 @@ public class WebServiceClient {
             if (fos != null) fos.close();
             Unirest.shutdown();
         }
-        return null;
     }
+
+    private String generateFileName(String fileName) {
+        if (fileName == null) fileName = "temp.tmp";
+        while (new File(fileName).exists()) {
+            if (fileName == null) fileName = "temp";
+
+            String name = null;
+            int number = 1;
+            String ext = null;
+
+            Pattern pattern = Pattern.compile("(.+)\\.(\\w+?)$");
+            Matcher matcher = pattern.matcher(fileName);
+
+            if (matcher.matches()) {
+                name = matcher.group(1);
+                ext = matcher.group(2);
+                number = 1;
+
+                pattern = Pattern.compile("(.*?)(\\d+)");
+                matcher = pattern.matcher(name);
+
+                if (matcher.matches()) {
+                    name = matcher.group(1);
+                    number = Integer.parseInt(matcher.group(2)) + 1;
+                }
+            }
+
+            fileName = name + number + "." + ext;
+        }
+        return fileName;
+    }
+
 
     private String getContentType(HttpResponse response) {
         Object contentType = response.getHeaders().get("content-type");
