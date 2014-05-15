@@ -36,9 +36,12 @@ class RestToken {
         return restrictions.find { !it.isRestricted }
     }
 
-    boolean isAllowedForFile(int fileId) {
-        def restriction = DownloadTokenRestriction.where { token == this && fileData.id == fileId }.find()
-        return !restriction?.isRestricted
+    boolean isAllowedForFile(int... fileIds) {
+        for (int id : fileIds) {
+            def restriction = DownloadTokenRestriction.where { token == this && fileData.id == id }.find()
+            if (!restriction || restriction.isRestricted) return false
+        }
+        return true
     }
 
     boolean isAllowedForFileCount(int fileCount) {

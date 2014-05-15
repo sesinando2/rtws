@@ -66,7 +66,7 @@ class TokenController {
                     fileCount: (params?.fileCount ?: '0') as int]
             if (params?.id?.number) json.put("id", params?.id as int)
         }
-        def tokenList = []
+        def tokenList
         switch (json?.authority) {
             case RepoService.ROLE_REPO_READ: // CREATE DOWNLOAD TOKEN
                 def files = repoService.getFiles(json?.id)

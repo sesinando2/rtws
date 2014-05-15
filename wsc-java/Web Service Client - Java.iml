@@ -13,10 +13,7 @@
           <root url="file://$MODULE_DIR$/lib" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$USER_HOME$/.ideaLibSources/json-simple-1.1.1-sources.jar!/" />
-          <root url="jar://$USER_HOME$/.ideaLibSources/httpasyncclient-4.0.1-sources.jar!/" />
-        </SOURCES>
+        <SOURCES />
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
       </library>
     </orderEntry>

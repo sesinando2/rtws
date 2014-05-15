@@ -68,18 +68,19 @@ public class WebServiceClient {
 
     /**
      * Request download tokens for a particular resource in the server.
-     * @param amount    Amount of token to generate.
-     * @param fileIds   Ids of the resource file.
-     * @return  Array of the generated tokens.
+     * @param amount        Amount of token to generate.
+     * @param accessCount   Number of times the token can be used to access the resource.
+     * @param fileIds       ID's of the resource files.
+     * @return              Array of generated tokens.
      */
-    public String[] requestDownloadTokens(int amount, Integer...fileIds) {
+    public String[] requestDownloadTokens(int amount, int accessCount, Integer... fileIds) {
         if (amount <= 0) amount = 1;
         JSONArray ids = new JSONArray();
         for (int id : fileIds) { ids.add(id); }
 
         WebResource resource = client.resource(baseUrl + TOKEN_REQUEST_URL);
         resource.type("application/json");
-        String response = resource.post(String.class, "{\"authority\":\"ROLE_REPO_READ\",\"amount\":" + amount + ",\"id\":" + ids.toJSONString() + "}");
+        String response = resource.post(String.class, "{\"authority\":\"ROLE_REPO_READ\",\"amount\":" + amount + ",\"id\":" + ids.toJSONString() + ", \"accessCount\":" + accessCount + "}");
         try {
             JSONArray tokens = (JSONArray) parser.parse(response);
             String[] tokensArray = new String[tokens.size()];
