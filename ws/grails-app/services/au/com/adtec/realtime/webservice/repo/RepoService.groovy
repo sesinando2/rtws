@@ -91,7 +91,7 @@ class RepoService extends AbstractService {
         if (restToken) {
             fileData = getFileFromToken(restToken, id)
             createDownloadFileLog(fileData, restToken)
-        }else if (isAdmin) {
+        } else if (isAdmin) {
             fileData = FileData.get(id)
         }
 

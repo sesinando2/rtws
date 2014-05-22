@@ -1,18 +1,11 @@
 package au.com.adtec.realtime.webservice.repo
 
-import au.com.adtec.realtime.webservice.security.RestToken
+import au.com.adtec.realtime.webservice.AbstractLog
 
-class FileDataLog {
+class FileDataLog extends AbstractLog {
 
-    RestToken token
-    String tokenValue
     FileData fileData
     FileDataAction action
-    Date dateCreated
-
-    static constraints = {
-        token nullable: true
-    }
 }
 
 enum FileDataAction { UPLOAD, DOWNLOAD }

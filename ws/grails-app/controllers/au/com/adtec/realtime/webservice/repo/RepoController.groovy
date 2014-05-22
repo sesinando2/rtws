@@ -1,7 +1,6 @@
 package au.com.adtec.realtime.webservice.repo
 
 import au.com.adtec.realtime.webservice.security.RestToken
-import au.com.adtec.realtime.webservice.security.TokenRestriction
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import org.springframework.web.multipart.MultipartHttpServletRequest
@@ -35,7 +34,7 @@ class RepoController {
                         FileData fileData = repoService.createFile(file, restToken, params)
                         if (fileData) {
                             urls.put(fileData.id.toString(), g.createLink(action: 'download', id: fileData?.id, absolute: true))
-                            if (restToken) tokenService.createDownloadTokenRestriction(restToken.token, fileData, 0)
+                            if (restToken) tokenService.createDownloadRestriction(restToken.token, fileData, 0)
                         }
                     }
                 }

@@ -6,8 +6,8 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.domain.DomainClassUnitTestMixin} for usage instructions
  */
-@TestFor(UploadTokeRestriction)
-class UploadTokeRestrictionSpec extends Specification {
+@TestFor(UploadTokenRestriction)
+class UploadTokenRestrictionSpec extends Specification {
 
     def setup() {
     }

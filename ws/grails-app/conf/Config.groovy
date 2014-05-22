@@ -133,6 +133,7 @@ au.com.adtec.rt = [ ip: 'ictest.adtec.com.au', port: 8642  ]
 au.com.adtec.security = [
         tokenExpiry: 86400, // In Seconds
         localTokenGenerationOnly: false ]
+au.com.adtec.mqtt = [ url: 'tcp://10.2.1.90:1883' ]
 
 // Spring Security Configurations
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'au.com.adtec.realtime.webservice.security.User'
@@ -157,13 +158,15 @@ grails.plugin.springsecurity.useBasicAuth = true
 grails.plugin.springsecurity.filterChain.chainMap = [
 
     /* Basic Authentication */
-    '/token/api/**': 'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
-    '/repo/api/**':  'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
+    '/token/api/**':    'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
+    '/repo/api/**':     'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
+    '/message/api/**':  'JOINED_FILTERS,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter',
 
     /* Rest & Form Authentication */
-    '/api/**':       'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
-    '/token/web/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
-    '/repo/web/**':  'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
+    '/api/**':          'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
+    '/token/web/**':    'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
+    '/repo/web/**':     'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
+    '/message/web/**':  'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter',
 
     /* Form Authentication */
     '/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter'

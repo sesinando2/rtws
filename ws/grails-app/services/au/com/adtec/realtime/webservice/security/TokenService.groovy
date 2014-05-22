@@ -1,12 +1,13 @@
 package au.com.adtec.realtime.webservice.security
 
+import au.com.adtec.realtime.webservice.messaging.Message
+import au.com.adtec.realtime.webservice.messaging.MessagingService
 import au.com.adtec.realtime.webservice.repo.FileData
 import au.com.adtec.realtime.webservice.repo.RepoService
 import com.odobo.grails.plugin.springsecurity.rest.token.generation.TokenGenerator
 import com.odobo.grails.plugin.springsecurity.rest.token.storage.TokenStorageService
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.transaction.Transactional
-import org.apache.commons.logging.Log
 
 @Transactional
 class TokenService {
@@ -24,9 +25,7 @@ class TokenService {
             def expiredTokens = RestToken.where { dateCreated <= expiryDate.time }.list()
             if (!expiredTokens.empty) {
                 log.debug("Deleting " + expiredTokens.size() + " tokens...");
-                expiredTokens.each {
-                    if (!it.isValid) it.delete()
-                }
+                expiredTokens.each { if (!it.isValid) it.delete() }
             }
         }
     }
@@ -38,9 +37,9 @@ class TokenService {
     }
 
     String generateDownloadToken(List<FileData> files, int accessCount) {
-        String tokenValue = generateToken(RepoService.Users.REPO_READ)
-        createDownloadTokenRestrictions(tokenValue, files, accessCount)
-        return tokenValue
+        String token = generateToken(RepoService.Users.REPO_READ)
+        createDownloadRestrictions(token, files, accessCount)
+        return token
     }
 
     List<String> generateUploadToken(int fileCount) {
@@ -49,9 +48,21 @@ class TokenService {
         return [tokenValue]
     }
 
-    def createDownloadTokenRestriction(String token, FileData fileData, int accessCount) {
+    def createDownloadRestriction(String token, FileData fileData, int accessCount) {
         RestToken restToken = RestToken.findByToken(token)
         if (restToken) new DownloadTokenRestriction(token: restToken, fileData: fileData, numberOfAccess: accessCount).save(flush: true)
+    }
+
+    List<String> generateMessageToken(Message message, int amount, int accessCount) {
+        List<String> tokenList = []
+        amount.times { tokenList.add(generateMessageToken(message, accessCount))  }
+        return tokenList
+    }
+
+    String generateMessageToken(Message message, int accessCount) {
+        String token = generateToken(MessagingService.Users.MESSAGING_USER)
+        createMessageRestriction(message, token, accessCount)
+        return token
     }
 
     private String generateToken(User user) {
@@ -61,14 +72,17 @@ class TokenService {
         return token
     }
 
-    private createDownloadTokenRestrictions(String token, List<FileData> files, int accessCount) {
-        files.each {
-            createDownloadTokenRestriction(token, it, accessCount)
-        }
+    private createDownloadRestrictions(String token, List<FileData> files, int accessCount) {
+        files.each { createDownloadRestriction(token, it, accessCount) }
     }
 
     private createUploadRestriction(String token, int fileCount) {
         RestToken restToken = RestToken.findByToken(token)
-        if (restToken) new UploadTokeRestriction(token: restToken, numberOfFiles: fileCount).save(flush: true)
+        if (restToken) new UploadTokenRestriction(token: restToken, numberOfFiles: fileCount).save(flush: true)
+    }
+
+    private createMessageRestriction(Message message, String token, int accessCount) {
+        RestToken restToken = RestToken.findByToken(token)
+        if (restToken) new MessageTokenRestriction(token: restToken, message: message, numberOfAccess: accessCount).save(flush: true)
     }
 }

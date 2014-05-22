@@ -2,7 +2,7 @@ package au.com.adtec.realtime.webservice.security
 
 import au.com.adtec.realtime.webservice.repo.FileDataLog
 
-class UploadTokeRestriction extends TokenRestriction {
+class UploadTokenRestriction extends TokenRestriction {
 
     int numberOfFiles
 

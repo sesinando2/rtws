@@ -1,21 +1,24 @@
 package au.com.adtec.realtime.webservice.client;
 
+import au.com.adtec.realtime.webservice.client.model.FileDetail;
 import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,11 +26,15 @@ public class WebServiceClient {
 
     public static final String TOKEN_REVOKE_URL = "token/api/revoke";
     public static final String TOKEN_REQUEST_URL = "token/api/request";
+    public static final String REPO_DETAILS_URL = "repo/api/details";
     public static final String REPO_DOWNLOAD_URL = "repo/web/download/";
+
+    private static Log log = LogFactory.getLog(WebServiceClient.class);
+
     private String baseUrl;
 
-    JSONParser parser;
-    private Client client;
+    private String username;
+    private String password;
 
     /**
      * Client for Real Time Web Service
@@ -37,13 +44,12 @@ public class WebServiceClient {
      */
     public WebServiceClient(String baseUrl, String username, String password) {
         this(baseUrl);
-        this.client.addFilter(new HTTPBasicAuthFilter(username, password));
+        this.username = username;
+        this.password = password;
     }
 
     public WebServiceClient(String baseUrl) {
         this.baseUrl = baseUrl;
-        parser = new JSONParser();
-        this.client = Client.create();
     }
 
     /**
@@ -53,17 +59,13 @@ public class WebServiceClient {
     public String requestUploadToken() {
         JSONObject body = new JSONObject();
         body.put("authority", "ROLE_REPO_UPLOAD");
-        WebResource resource = client.resource(baseUrl + TOKEN_REQUEST_URL);
-        resource.type("application/json");
-        String response = resource.post(String.class, body.toJSONString());
         try {
-            JSONArray tokens = (JSONArray) parser.parse(response);
-            return (String) tokens.get(0);
-        } catch (ParseException e) {
-            System.out.println("Exception on WebServiceClient.requestUploadToken while trying to parse response: " + response);
-            e.printStackTrace();
-            return null;
+            HttpResponse<JsonNode> response = Unirest.post(baseUrl + TOKEN_REQUEST_URL).basicAuth(username, password).body(body.toString()).asJson();
+            return (String) response.getBody().getArray().get(0);
+        } catch (UnirestException e) {
+            log.error(e);
         }
+        return null;
     }
 
     /**
@@ -75,22 +77,19 @@ public class WebServiceClient {
      */
     public String[] requestDownloadTokens(int amount, int accessCount, Integer... fileIds) {
         if (amount <= 0) amount = 1;
-        JSONArray ids = new JSONArray();
-        for (int id : fileIds) { ids.add(id); }
-
-        WebResource resource = client.resource(baseUrl + TOKEN_REQUEST_URL);
-        resource.type("application/json");
-        String response = resource.post(String.class, "{\"authority\":\"ROLE_REPO_READ\",\"amount\":" + amount + ",\"id\":" + ids.toJSONString() + ", \"accessCount\":" + accessCount + "}");
+        JSONArray idJsonArray = new JSONArray(fileIds);
+        JSONObject body = new JSONObject();
+        body.put("authority", "ROLE_REPO_READ").put("amount", amount).put("accessCount", accessCount).put("id", idJsonArray);
         try {
-            JSONArray tokens = (JSONArray) parser.parse(response);
-            String[] tokensArray = new String[tokens.size()];
-            tokens.toArray(tokensArray);
+            HttpResponse<JsonNode> response = Unirest.post(baseUrl + TOKEN_REQUEST_URL).basicAuth(username, password).body(body.toString()).asJson();
+            JSONArray tokensJsonArray = response.getBody().getArray();
+            String[] tokensArray = new String[tokensJsonArray.length()];
+            for (int i = 0; i < tokensJsonArray.length(); i++) tokensArray[i] = (String) tokensJsonArray.get(i);
             return tokensArray;
-        } catch (ParseException e) {
-            System.out.println("Exception on WebServiceClient.requestUploadToken while trying to parse response: " + response);
-            e.printStackTrace();
-            return null;
+        } catch (UnirestException e) {
+            log.error(e);
         }
+        return null;
     }
 
     /**
@@ -99,19 +98,52 @@ public class WebServiceClient {
      * @return  Whether the tokens has been successfully revoked of not.
      */
     public boolean revokeToken(String...tokens) {
-        JSONArray tokensJSON = new JSONArray();
-        for (String token : tokens) { tokensJSON.add(token); }
-        WebResource resource = client.resource(baseUrl + TOKEN_REVOKE_URL);
-        resource.type("application/json");
-        String response = resource.post(String.class, tokensJSON.toJSONString());
+        JSONArray tokenJSON = new JSONArray(tokens);
+
         try {
-            JSONObject jsonResult = (JSONObject) parser.parse(response);
-            return (Boolean) jsonResult.get("success");
-        } catch (ParseException e) {
-            System.out.println("Exception on WebServiceClient.revokeToken while trying to parse response: " + response);
-            e.printStackTrace();
+            HttpResponse<JsonNode> response = Unirest.post(baseUrl + TOKEN_REVOKE_URL).basicAuth(username, password).body(tokenJSON.toString()).asJson();
+            JSONObject result = response.getBody().getObject();
+            return (Boolean) result.get("success");
+        } catch (UnirestException e) {
+            log.error(e);
         }
         return false;
+    }
+
+    public Collection<FileDetail> getFileDetails(int... fileIds) throws IOException {
+        List<String> fileIdStringList = new ArrayList<String>();
+        for (int id : fileIds) fileIdStringList.add(String.valueOf(id));
+        String url = MessageFormat.format("{0}{1}/{2}", baseUrl, REPO_DETAILS_URL, StringUtils.join(fileIdStringList, ","));
+        try {
+            HttpResponse<JsonNode> jsonResponse = Unirest.get(url).basicAuth(username, password).asJson();
+            JSONObject response = jsonResponse.getBody().getObject();
+            Collection<FileDetail> detailsList = new ArrayList<FileDetail>();
+            for (Object key : response.keySet()) detailsList.add(new FileDetail((JSONObject) response.get((String) key)));
+            return detailsList;
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public JSONObject addCannedMessage(int incidentId, int instanceId, int fromAgentId, int fromMemberId, String messageContent, String cannedResponse, int responseTypeId, int tokenCount, int accessCount) throws IOException {
+        String url = MessageFormat.format("{0}{1}", baseUrl, "message/api/canned/add");
+        try {
+            HttpResponse<JsonNode> response = Unirest.post(url).basicAuth(username, password).field("incidentId", incidentId).
+                    field("instanceId", String.valueOf(instanceId)).field("fromAgentId", String.valueOf(fromAgentId)).
+                    field("fromMemberId", String.valueOf(fromMemberId)).field("messageContent", String.valueOf(messageContent)).
+                    field("messageType", String.valueOf(5)).field("responseTypeId", String.valueOf(responseTypeId)).
+                    field("tokenCount", String.valueOf(tokenCount)).field("accessCount", String.valueOf(accessCount)).
+                    field("response", cannedResponse).asJson();
+            return response.getBody().getObject();
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public JSONObject addCannedMessage(int incidentId, int instanceId, int fromAgentId, int fromMemberId, String messageContent, String cannedResponse, int responseTypeId) throws IOException {
+        return addCannedMessage(incidentId, instanceId, fromAgentId, fromMemberId, messageContent, cannedResponse, responseTypeId, 1, 0);
     }
 
     public File download(String token, int fileId) throws IOException {
@@ -147,7 +179,6 @@ public class WebServiceClient {
             throw e;
         } finally {
             if (fos != null) fos.close();
-            Unirest.shutdown();
         }
     }
 
@@ -182,7 +213,6 @@ public class WebServiceClient {
         return fileName;
     }
 
-
     private String getContentType(HttpResponse response) {
         Object contentType = response.getHeaders().get("content-type");
         if (isNonEmptyArrayList(contentType)) {
@@ -203,5 +233,11 @@ public class WebServiceClient {
 
     private boolean isNonEmptyArrayList(Object contentType) {
         return contentType != null && contentType instanceof ArrayList && ((ArrayList) contentType).size() > 0;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        Unirest.shutdown();
     }
 }

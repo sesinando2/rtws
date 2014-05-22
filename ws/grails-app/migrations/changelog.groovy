@@ -242,4 +242,5 @@ databaseChangeLog = {
     include file: 'add-date-created-on-file-data.groovy'
     include file: 'add-video-file-data.groovy'
     include file: 'changed-thumb-extension-to-thumb-type.groovy'
+	include file: 'add-messaging-domain.groovy'
 }

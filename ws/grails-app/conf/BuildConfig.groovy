@@ -58,17 +58,19 @@ grails.project.dependency.resolution = {
         mavenRepo 'https://oss.sonatype.org/content/repositories/snapshots'
 
         mavenRepo 'http://xuggle.googlecode.com/svn/trunk/repo/share/java/'
+        mavenRepo "http://repo.springsource.org/libs-milestone"
     }
 
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
-        runtime 'mysql:mysql-connector-java:5.1.27'
+        runtime "mysql:mysql-connector-java:5.1.27"
         // runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
         runtime "postgresql:postgresql:9.1-901.jdbc3"
         // Xuggler
-        runtime('xuggle:xuggle-xuggler:5.4') {
+        runtime("xuggle:xuggle-xuggler:5.4") {
             excludes "ch.qos.logback:logback-classic:1.0.0"
         }
+        runtime "org.eclipse.paho:mqtt-client:0.2.1"
     }
 
     plugins {

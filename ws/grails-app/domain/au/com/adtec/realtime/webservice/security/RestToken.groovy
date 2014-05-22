@@ -45,14 +45,19 @@ class RestToken {
     }
 
     boolean isAllowedForFileCount(int fileCount) {
-        def restriction = UploadTokeRestriction.findByToken(this)
+        def restriction = UploadTokenRestriction.findByToken(this)
         if (restriction.numberOfFiles == 0) return true
         def logs = FileDataLog.findAllByToken(this)
         return (fileCount + logs.size()) <= restriction?.numberOfFiles
     }
 
+    boolean isAllowedForMessage(long... messageIds) {
+        def restrictions = MessageTokenRestriction.where { token == this && message.id in messageIds }.findAll()
+        return !restrictions.find { it.isRestricted }
+    }
+
     def beforeDelete() {
-        final String query = "update file_data_log set token_id=null where token_id=:tokenId"
+        final String query = "update abstract_log set token_id=null where token_id=:tokenId"
         final session  = sessionFactory.currentSession
         final sqlQuery = session.createSQLQuery(query)
         sqlQuery.with {

@@ -21,12 +21,12 @@ environments {
             url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"*/
 
             // Local MySQL
-            /*dbCreate = "create-drop"
+            dbCreate = "create-drop"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
             url = "jdbc:mysql://localhost:3306/webservice"
             username = "root"
-            password = ""*/
+            password = ""
 
             // Local Postgres
             /*driverClassName = "org.postgresql.Driver"
@@ -36,11 +36,11 @@ environments {
             password = ""*/
 
             // ADTEC ICTEST
-            driverClassName = "org.postgresql.Driver"
+            /*driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
             url = "jdbc:postgresql://ictest.adtec.com.au:5432/webservice_test"
             username = "adtec"
-            password = ""
+            password = ""*/
         }
 
         /* ADTEC Comcent Data Source
@@ -61,18 +61,18 @@ environments {
     production {
         dataSource {
             // Local Postgres
-            driverClassName = "org.postgresql.Driver"
+            /*driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
             url = "jdbc:postgresql://localhost:5432/webservice"
             username = "adtec"
-            password = ""
+            password = ""*/
 
             // ICTEST Postgres Database
-            /*driverClassName = "org.postgresql.Driver"
+            driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
             url = "jdbc:postgresql://ictest.adtec.com.au:5432/webservice"
             username = "adtec"
-            password = ""*/
+            password = ""
 
             // Local MySQL Database
             /*dbCreate = "create-drop"
