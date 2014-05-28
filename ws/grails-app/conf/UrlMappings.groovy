@@ -14,6 +14,10 @@ class UrlMappings {
         //region Repo Module
         "/repo/web/$action?/$id?"(controller: "repo")
         "/repo/api/$action?/$id?"(controller: "repo")
+        "/repo/web/$token/$id-thumb-${width}x${height}.jpg"(controller: "repo", action: "thumb")
+        "/repo/web/$token/$id-square-${thumb}.jpg"(controller: "repo", action: "square")
+        "/repo/web/$token/$id-rect-${width}x${height}.jpg"(controller: "repo", action: "rect")
+        "/repo/web/$token/$id-height-${height}.jpg"(controller: "repo", action: "height")
         //endregion
 
         //region Token Management

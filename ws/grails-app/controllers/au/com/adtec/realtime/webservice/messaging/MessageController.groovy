@@ -32,7 +32,7 @@ class MessageController {
             messagingService.respondToCannedMessage(cannedMessage, restToken, fromMemberId, cannedResponse)
             CannedMessageResponse selectedResponse = cannedMessage.responses.find { it.messageResponsesId == cannedResponse }
             def jsonMessage = JSON.parse(cannedMessage.messageContent)
-            render(view: "/message/cannedResponse", model: [message: jsonMessage?.content, responseText: selectedResponse?.value])
+            render(view: "/message/cannedResponse", model: [message: jsonMessage?.txt, responseText: selectedResponse?.value])
         } else {
             render(status: 404, text: "Canned Message with id: $id is not found")
         }

@@ -102,6 +102,25 @@ class RepoService extends AbstractService {
         return fileData
     }
 
+    ImageTool loadImage(FileData file) {
+        ImageTool imageTool = new ImageTool()
+        switch (file) {
+            case { it instanceof VideoFileData && it.fileType == FileType.VIDEO }:
+                imageTool.load(file?.thumbData)
+                def alpha = grailsResourceLocator.findResourceForURI("images/play-button-overlay.png").file.absolutePath
+                imageTool.loadMask(alpha)
+                imageTool.applyMask()
+                imageTool.swapSource()
+                break
+            case { it.fileType == FileType.AUDIO }:
+                def audio = grailsResourceLocator.findResourceForURI("images/audio-icon.png").file.absolutePath
+                imageTool.load(audio)
+                break
+            default: imageTool.load(file.data)
+        }
+        return imageTool
+    }
+
     private FileData getFileThumbnail(FileData fileData, Map params) {
         switch (fileData?.fileType) {
             case FileType.IMAGE:
@@ -127,22 +146,15 @@ class RepoService extends AbstractService {
     }
 
     boolean getIsAdmin() {
-        def authorities = currentUser.authorities.collect { it.authority }
+        def authorities = currentUser?.authorities.collect { it.authority }
         return authorities.contains('ROLE_ADMIN') || authorities.contains('ROLE_REPO_ADMIN')
     }
 
     private FileData resizeImage(FileData fileData, Map params) {
         def thumbnail = new FileData(contentType: "image/jpeg", filename: "$fileData.filename-thumb.jpg")
-        ImageTool imageTool = new ImageTool()
-        imageTool.load(fileData instanceof VideoFileData ? fileData.thumbData : fileData.data)
+        ImageTool imageTool = loadImage(fileData)
         def thumbSize = params?.thumb as int
         imageTool.thumbnail(thumbSize)
-        if (fileData instanceof VideoFileData) {
-            imageTool.swapSource()
-            def alpha = grailsResourceLocator.findResourceForURI("images/play-button-overlay.png").file.absolutePath
-            imageTool.loadMask(alpha)
-            imageTool.applyMask()
-        }
         thumbnail.data = imageTool.getBytes("JPEG")
         return thumbnail
     }

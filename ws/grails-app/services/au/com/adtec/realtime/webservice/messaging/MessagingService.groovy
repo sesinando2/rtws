@@ -24,6 +24,9 @@ class MessagingService extends AbstractService {
 
     static final String USER_MESSAGING_ADMIN = "messaging_admin"
     static final String USER_MESSAGING_USER = "messaging_user"
+
+    static final int MESSAGE_PROGRESS = 21;
+    static final int CANNED_RESPONSE_EVENT = 279;
     //endregion
 
     def initializeRoles() {
@@ -59,7 +62,7 @@ class MessagingService extends AbstractService {
         if (restToken) {
             createMessageLog(message, restToken, MessageLogAction.RESPOND)
             restToken.delete()
-            mqttService.publish("uas", "21~$val~0~$fromMemberId~$message.incidentId~$message.instanceId~~278~$cannedResponse"); val++
+            mqttService.publish("uas", "$MESSAGE_PROGRESS~$val~0~$fromMemberId~$message.incidentId~$message.instanceId~~$CANNED_RESPONSE_EVENT~$cannedResponse"); val++
         }
     }
 
