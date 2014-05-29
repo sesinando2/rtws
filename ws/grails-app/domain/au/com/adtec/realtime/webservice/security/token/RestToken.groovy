@@ -1,6 +1,10 @@
-package au.com.adtec.realtime.webservice.security
+package au.com.adtec.realtime.webservice.security.token
 
 import au.com.adtec.realtime.webservice.repo.FileDataLog
+import au.com.adtec.realtime.webservice.security.token.restriction.DownloadTokenRestriction
+import au.com.adtec.realtime.webservice.security.token.restriction.MessageTokenRestriction
+import au.com.adtec.realtime.webservice.security.token.restriction.TokenRestriction
+import au.com.adtec.realtime.webservice.security.token.restriction.UploadTokenRestriction
 
 class RestToken {
 

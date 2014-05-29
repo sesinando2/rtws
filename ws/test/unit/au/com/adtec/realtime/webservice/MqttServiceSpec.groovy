@@ -1,4 +1,4 @@
-package au.com.adtec.realtime.webservice.security
+package au.com.adtec.realtime.webservice
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
@@ -6,8 +6,8 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-@TestFor(TokenService)
-class TokenServiceSpec extends Specification {
+@TestFor(MqttService)
+class MqttServiceSpec extends Specification {
 
     def setup() {
     }

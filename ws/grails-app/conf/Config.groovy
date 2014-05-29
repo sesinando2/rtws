@@ -119,8 +119,8 @@ log4j = {
            'net.sf.ehcache.hibernate'
     environments {
         development {
-            debug  'com.odobo', 'grails.app.controllers.com.odobo', 'grails.app.services.com.odobo', 'org.pac4j', 'org.springframework.security', 'grails.app.controllers', 'grails.app.services', 'org.atmosphere'
-            all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.app.jobs', 'grails.plugin.databasemigration'
+            // debug  'com.odobo', 'grails.app.controllers.com.odobo', 'grails.app.services.com.odobo', 'org.pac4j', 'org.springframework.security', 'grails.app.controllers', 'grails.app.services', 'org.atmosphere', 'grails.app.jobs'
+            all 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.plugin.databasemigration'
         }
         production {
             error 'grails.app.domain', 'grails.app.controllers', 'grails.app.services', 'grails.app.jobs'
@@ -140,7 +140,7 @@ grails.plugin.springsecurity.userLookup.userDomainClassName = 'au.com.adtec.real
 grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'au.com.adtec.realtime.webservice.security.UserRole'
 grails.plugin.springsecurity.authority.className = 'au.com.adtec.realtime.webservice.security.Role'
 grails.plugin.springsecurity.rememberMe.persistent = true
-grails.plugin.springsecurity.rememberMe.persistentToken.domainClassName = 'au.com.adtec.realtime.webservice.security.AuthenticationToken'
+grails.plugin.springsecurity.rememberMe.persistentToken.domainClassName = 'au.com.adtec.realtime.webservice.security.token.AuthenticationToken'
 grails.plugin.springsecurity.logout.postOnly = false
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	'/':                              ['permitAll'],
@@ -171,14 +171,11 @@ grails.plugin.springsecurity.filterChain.chainMap = [
     /* Form Authentication */
     '/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter'
 ]
-grails.plugin.springsecurity.secureChannel.definition = [
-    '/api*/**': 'REQUIRES_SECURE_CHANNEL'
-]
 
 // Spring Security Rest Configurations
 grails.plugin.springsecurity.rest.login.failureStatusCode = 401
 grails.plugin.springsecurity.rest.token.storage.useGorm = true
-grails.plugin.springsecurity.rest.token.storage.gorm.tokenDomainClassName = 'au.com.adtec.realtime.webservice.security.RestToken'
+grails.plugin.springsecurity.rest.token.storage.gorm.tokenDomainClassName = 'au.com.adtec.realtime.webservice.security.token.RestToken'
 grails.plugin.springsecurity.rest.token.storage.gorm.tokenValuePropertyName = 'token'
 grails.plugin.springsecurity.rest.token.storage.gorm.usernamePropertyName = 'login'
 

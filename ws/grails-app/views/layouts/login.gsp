@@ -23,19 +23,17 @@
 		<r:layoutResources />
 	</head>
 	<body>
-        <div class="container_24 header" role="header">
-            <div id="logo" role="banner" class="grid_5 logo"><g:link uri="/"><img src="${resource(dir: 'images', file: 'qocca_logo.png')}" alt="QOCCA"/></g:link></div>
-            <div class="grid_19 navigation items" role="navigation">
-                <g:render template="/layouts/nav" />
+    <div id="login">
+        <div class="login_form_title">
+            <div class="banner">
+                <g:link uri="/"><img src="${resource(dir: 'images', file: 'qocca_logo.png')}" alt="QOCCA"/></g:link>
             </div>
+            <h5><g:message code="springSecurity.login.header"/></h5>
+            <g:if test='${flash.message}'>
+                <div class='login_message'>${flash.message}</div>
+            </g:if>
         </div>
-        <div class="container_24">
-            <g:layoutBody/>
-        </div>
-        <div class="container_24">
-            <div class="footer" role="contentinfo"></div>
-            <div id="spinner" class="spinner" style="display:none;"><g:message code="spinner.alt" default="Loading&hellip;"/></div>
-            <r:layoutResources />
-        </div>
+        <g:layoutBody/>
+    </div>
 	</body>
 </html>

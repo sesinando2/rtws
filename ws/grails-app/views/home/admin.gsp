@@ -1,4 +1,4 @@
-<%@ page import="au.com.adtec.realtime.webservice.security.token.RestToken" %>
+<%@ page import="au.com.adtec.realtime.webservice.repo.FileData; au.com.adtec.realtime.webservice.messaging.Message; au.com.adtec.realtime.webservice.security.token.RestToken" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,11 +13,11 @@
     <div class="content">
         <h2>Welcome to QOCCA Web Service</h2>
         <h3>Repository</h3>
-        Number of files: ${au.com.adtec.realtime.webservice.repo.FileData.count()}
+        Number of files: ${FileData.count()}
         <h3>Token Management</h3>
         Number of Tokens: ${RestToken.count()}
         <h3>Messaging</h3>
-        Number of Messages: ${au.com.adtec.realtime.webservice.messaging.Message.count()}
+        Number of Messages: ${Message.count()}
     </div>
 </div>
 </body>

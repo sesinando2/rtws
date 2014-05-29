@@ -2,8 +2,8 @@ package au.com.adtec.realtime.webservice.messaging
 
 import au.com.adtec.realtime.webservice.AbstractService
 import au.com.adtec.realtime.webservice.MqttService
-import au.com.adtec.realtime.webservice.security.MessageTokenRestriction
-import au.com.adtec.realtime.webservice.security.RestToken
+import au.com.adtec.realtime.webservice.security.token.restriction.MessageTokenRestriction
+import au.com.adtec.realtime.webservice.security.token.RestToken
 import au.com.adtec.realtime.webservice.security.Role
 import au.com.adtec.realtime.webservice.security.TokenService
 import au.com.adtec.realtime.webservice.security.User
@@ -39,12 +39,12 @@ class MessagingService extends AbstractService {
         Users.MESSAGING_USER = createUser(USER_MESSAGING_USER, "admin:)", Roles.MESSAGING_USER)
     }
 
-    List<String> createCannedMessage(CannedMessage message, int tokenCount, int accessCount, JSONObject response) {
+    List<String> createCannedMessage(CannedMessage message, int tokenCount, int accessCount, int responseCount, JSONObject response) {
         message.responses = []
         for (String key : response.keySet())
             message.responses.add(new CannedMessageResponse(messageResponsesId: key, value: response.get(key)))
         message.save()
-        return tokenService.generateMessageToken(message, tokenCount, accessCount)
+        return tokenService.generateMessageToken(message, tokenCount, accessCount, responseCount)
     }
 
     CannedMessage getCannedMessage(int id, RestToken restToken) {
@@ -71,16 +71,17 @@ class MessagingService extends AbstractService {
     }
 
     boolean getIsAdmin() {
-        def authorities = currentUser.authorities.collect { it.authority }
-        return authorities.contains('ROLE_ADMIN') || authorities.contains('ROLE_MESSAGING_ADMIN')
+        def authorities = currentUser?.authorities?.collect { it.authority }
+        return authorities && (authorities?.contains('ROLE_ADMIN') || authorities?.contains('ROLE_MESSAGING_ADMIN'))
     }
 
     private CannedMessage getCannedMessageFromToken(RestToken restToken, int id) {
         if (restToken) {
             if (restToken.isValid) {
                 def restrictions = MessageTokenRestriction.where { token == restToken && message.id == id }.list()
+                println "Restrictions: $restrictions"
                 if (!restrictions.empty) return restrictions.first().message
-            } else restToken.delete()
+            }
         }
         return null
     }

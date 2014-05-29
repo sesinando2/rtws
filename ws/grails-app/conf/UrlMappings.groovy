@@ -7,17 +7,23 @@ class UrlMappings {
             }
         }
 
-        //"/"(view:"/index")
-        "/"(view:"/home")
+        "/"(controller: 'home')
         "500"(view:'/error')
+
+        "/login/token"(view: "login/token")
 
         //region Repo Module
         "/repo/web/$action?/$id?"(controller: "repo")
         "/repo/api/$action?/$id?"(controller: "repo")
+
         "/repo/web/$token/$id-thumb-${width}x${height}.jpg"(controller: "repo", action: "thumb")
         "/repo/web/$token/$id-square-${thumb}.jpg"(controller: "repo", action: "square")
         "/repo/web/$token/$id-rect-${width}x${height}.jpg"(controller: "repo", action: "rect")
         "/repo/web/$token/$id-height-${height}.jpg"(controller: "repo", action: "height")
+
+        "/repo/web/$token/view/$id"(controller: "repo", action: "view")
+
+        "/repo/web/test"(view: "repo/test")
         //endregion
 
         //region Token Management
@@ -29,7 +35,7 @@ class UrlMappings {
         "/message/web/canned/add"(controller: "message", action: "addCanned")
         "/message/api/canned/add"(controller: "message", action: "addCanned")
 
-        "/message/web/canned/response/$id"(controller: "message", action: "cannedResponse")
+        "/message/web/$token/canned/response/$id/$fromMemberId/$cannedResponse"(controller: "message", action: "cannedResponse")
         "/message/api/canned/response/$id"(controller: "message", action: "cannedResponse")
 
         "/message/web/$action?/$id?"(controller: "message")

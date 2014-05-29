@@ -23,19 +23,13 @@
 		<r:layoutResources />
 	</head>
 	<body>
-        <div class="container_24 header" role="header">
-            <div id="logo" role="banner" class="grid_5 logo"><g:link uri="/"><img src="${resource(dir: 'images', file: 'qocca_logo.png')}" alt="QOCCA"/></g:link></div>
-            <div class="grid_19 navigation items" role="navigation">
-                <g:render template="/layouts/nav" />
+    <div id="default_container" class="absolute_center">
+        <div class="title">
+            <div class="banner">
+                <g:link uri="/"><img src="${resource(dir: 'images', file: 'qocca_logo.png')}" alt="QOCCA"/></g:link>
             </div>
         </div>
-        <div class="container_24">
-            <g:layoutBody/>
-        </div>
-        <div class="container_24">
-            <div class="footer" role="contentinfo"></div>
-            <div id="spinner" class="spinner" style="display:none;"><g:message code="spinner.alt" default="Loading&hellip;"/></div>
-            <r:layoutResources />
-        </div>
+        <g:layoutBody/>
+    </div>
 	</body>
 </html>

@@ -1,4 +1,6 @@
-package au.com.adtec.realtime.webservice.security
+package au.com.adtec.realtime.webservice.security.token.restriction
+
+import au.com.adtec.realtime.webservice.security.token.RestToken
 
 class TokenRestriction {
 

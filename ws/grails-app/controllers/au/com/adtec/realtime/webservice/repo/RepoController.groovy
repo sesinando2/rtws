@@ -1,24 +1,27 @@
 package au.com.adtec.realtime.webservice.repo
 
-import au.com.adtec.realtime.webservice.security.RestToken
+import au.com.adtec.realtime.webservice.AbstractController
+import au.com.adtec.realtime.webservice.security.token.RestToken
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import org.grails.plugins.imagetools.ImageTool
 import org.springframework.web.multipart.MultipartHttpServletRequest
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
-class RepoController {
+class RepoController extends AbstractController {
 
     static allowedMethods = [list: 'GET', delete: ['GET', 'DELETE'], upload: 'POST', download: 'GET']
 
-    def beforeInterceptor = [action: this.&authorizeDownloadToken, except: ['index', 'list', 'delete', 'purge', 'upload', 'thumb', 'square', 'rect', 'height']]
+    def beforeInterceptor = [action: this.&authorizeDownloadToken, except: ['index', 'list', 'delete', 'purge', 'upload', 'thumb', 'square', 'rect', 'height', 'view']]
 
     def repoService
     def tokenService
 
     //region Actions
+    @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN"])
     def index() { }
 
+    @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN"])
     def list() { render FileData.list().collect { it.id } as JSON }
 
     @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN", "ROLE_REPO_UPLOAD"])
@@ -52,12 +55,14 @@ class RepoController {
     @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN", "ROLE_REPO_READ"])
     def download(int id) {
         RestToken token = RestToken.findByToken(token)
+        if (token && !token?.isValid) {
+            token.delete()
+            token = null
+        }
         FileData file = repoService.getFile(id, token, params)
         doActionForFile(file) {
-            if (token && !token?.isValid) token.delete()
             def data = file.data
-            response.setHeader("Content-disposition", "filename=$file.filename")
-            response.setHeader("Content-type", "$file.contentType")
+            response.setHeader("Content-disposition", "attachment;filename=$file.filename")
             response.setHeader("Content-length", "$data.length")
             response.outputStream << data
         }
@@ -182,6 +187,17 @@ class RepoController {
         FileData.deleteAll(FileData.all)
         redirect(action: "index")
     }
+
+    @Secured(["permitAll"])
+    def view(String token, Integer id) {
+        RestToken restToken = RestToken.findByToken(token);
+        if (!(restToken && restToken.isAllowedForFile(idAsArray))) {
+            render(status: 401, text: "Token not allowed for file with id/s: $params.id")
+            return
+        }
+        FileData file = repoService.getFile(id, restToken, [:])
+        render(view: "view", model: [token: token, file: file])
+    }
     //endregion
 
     private doActionForFile(FileData file, Closure action) {
@@ -193,10 +209,6 @@ class RepoController {
             render([error: "Cannot find file with id '$params.id'"] as JSON)
             return
         }
-    }
-
-    private getToken() {
-        request.getHeader('X-Auth-Token') ?: request.getParameter('token')
     }
 
     private getIdAsArray() {

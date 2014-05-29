@@ -1,8 +1,18 @@
+<!DOCTYPE html>
 <html>
 <head>
-  <title>Canned Response</title>
+    <meta name="layout" content="default">
+    <title>Canned Response</title>
 </head>
 <body>
-    You have responded with '${responseText}' to '${message}'
+<div id="canned-response" class="content center" role="main">
+    <g:if test="${hasResponded}">
+        <h2>Message has already expired.</h2>
+    </g:if>
+    <g:else>
+        <h2>You have responded with '${responseText}' to '${message}'.</h2>
+    </g:else>
+</div>
 </body>
+</html>
 </html>

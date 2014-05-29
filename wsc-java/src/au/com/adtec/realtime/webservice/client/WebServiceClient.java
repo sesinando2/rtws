@@ -134,7 +134,7 @@ public class WebServiceClient {
                     field("fromMemberId", String.valueOf(fromMemberId)).field("messageContent", String.valueOf(messageContent)).
                     field("messageType", String.valueOf(5)).field("responseTypeId", String.valueOf(responseTypeId)).
                     field("tokenCount", String.valueOf(tokenCount)).field("accessCount", String.valueOf(accessCount)).
-                    field("response", cannedResponse).asJson();
+                    field("responseCount", "1").field("response", cannedResponse).asJson();
             return response.getBody().getObject();
         } catch (UnirestException e) {
             e.printStackTrace();

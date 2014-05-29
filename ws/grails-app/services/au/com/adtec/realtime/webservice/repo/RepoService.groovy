@@ -1,17 +1,13 @@
 package au.com.adtec.realtime.webservice.repo
 
 import au.com.adtec.realtime.webservice.AbstractService
-import au.com.adtec.realtime.webservice.security.DownloadTokenRestriction
-import au.com.adtec.realtime.webservice.security.RestToken
+import au.com.adtec.realtime.webservice.security.token.restriction.DownloadTokenRestriction
+import au.com.adtec.realtime.webservice.security.token.RestToken
 import au.com.adtec.realtime.webservice.security.Role
 import au.com.adtec.realtime.webservice.security.User
 import grails.transaction.Transactional
-import org.codehaus.groovy.grails.io.support.ResourceLoader
 import org.grails.plugins.imagetools.ImageTool
 import org.springframework.web.multipart.commons.CommonsMultipartFile
-
-import javax.imageio.ImageIO
-import javax.media.jai.JAI
 
 @Transactional
 class RepoService extends AbstractService {
@@ -96,7 +92,7 @@ class RepoService extends AbstractService {
         }
 
         if (params?.thumb && params?.thumb?.toString()?.number) {
-            fileData = getFileThumbnail(fileData, params)
+            fileData = resizeImage(fileData, params)
         }
 
         return fileData
@@ -119,18 +115,6 @@ class RepoService extends AbstractService {
             default: imageTool.load(file.data)
         }
         return imageTool
-    }
-
-    private FileData getFileThumbnail(FileData fileData, Map params) {
-        switch (fileData?.fileType) {
-            case FileType.IMAGE:
-                fileData = resizeImage(fileData, params)
-                break
-            case FileType.VIDEO:
-                if (fileData instanceof VideoFileData) fileData = resizeImage(fileData as VideoFileData, params)
-                break
-        }
-        fileData
     }
 
     List<FileData> getFiles(id) {

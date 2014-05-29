@@ -243,4 +243,6 @@ databaseChangeLog = {
     include file: 'add-video-file-data.groovy'
     include file: 'changed-thumb-extension-to-thumb-type.groovy'
 	include file: 'add-messaging-domain.groovy'
+
+	include file: 'add-number-of-response-to-message-restriction.groovy'
 }

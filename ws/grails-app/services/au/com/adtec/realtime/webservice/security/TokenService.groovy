@@ -4,6 +4,10 @@ import au.com.adtec.realtime.webservice.messaging.Message
 import au.com.adtec.realtime.webservice.messaging.MessagingService
 import au.com.adtec.realtime.webservice.repo.FileData
 import au.com.adtec.realtime.webservice.repo.RepoService
+import au.com.adtec.realtime.webservice.security.token.restriction.DownloadTokenRestriction
+import au.com.adtec.realtime.webservice.security.token.restriction.MessageTokenRestriction
+import au.com.adtec.realtime.webservice.security.token.RestToken
+import au.com.adtec.realtime.webservice.security.token.restriction.UploadTokenRestriction
 import com.odobo.grails.plugin.springsecurity.rest.token.generation.TokenGenerator
 import com.odobo.grails.plugin.springsecurity.rest.token.storage.TokenStorageService
 import grails.plugin.springsecurity.SpringSecurityService
@@ -53,22 +57,24 @@ class TokenService {
         if (restToken) new DownloadTokenRestriction(token: restToken, fileData: fileData, numberOfAccess: accessCount).save(flush: true)
     }
 
-    List<String> generateMessageToken(Message message, int amount, int accessCount) {
+    List<String> generateMessageToken(Message message, int amount, int accessCount, int responseCount) {
         List<String> tokenList = []
-        amount.times { tokenList.add(generateMessageToken(message, accessCount))  }
+        amount.times { tokenList.add(generateMessageToken(message, accessCount, responseCount))  }
         return tokenList
     }
 
-    String generateMessageToken(Message message, int accessCount) {
+    String generateMessageToken(Message message, int accessCount, int responseCount) {
         String token = generateToken(MessagingService.Users.MESSAGING_USER)
-        createMessageRestriction(message, token, accessCount)
+        createMessageRestriction(message, token, accessCount, responseCount)
         return token
     }
 
     private String generateToken(User user) {
+        // TODO: Find a way to re authenticate without hard coding
         springSecurityService.reauthenticate(user?.username, "admin:)")
         String token = tokenGenerator.generateToken()
         tokenStorageService.storeToken(token, springSecurityService.principal)
+        springSecurityService.reauthenticate("admin", "admin:)")
         return token
     }
 
@@ -81,8 +87,8 @@ class TokenService {
         if (restToken) new UploadTokenRestriction(token: restToken, numberOfFiles: fileCount).save(flush: true)
     }
 
-    private createMessageRestriction(Message message, String token, int accessCount) {
+    private createMessageRestriction(Message message, String token, int accessCount, int responseCount) {
         RestToken restToken = RestToken.findByToken(token)
-        if (restToken) new MessageTokenRestriction(token: restToken, message: message, numberOfAccess: accessCount).save(flush: true)
+        if (restToken) new MessageTokenRestriction(token: restToken, message: message, numberOfAccess: accessCount, responseCount: responseCount).save(flush: true)
     }
 }

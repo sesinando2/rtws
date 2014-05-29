@@ -1,4 +1,4 @@
-package au.com.adtec.realtime.webservice.security
+package au.com.adtec.realtime.webservice.security.token
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin

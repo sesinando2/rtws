@@ -1,6 +1,6 @@
 package au.com.adtec.realtime.webservice.repo
 
-import au.com.adtec.realtime.webservice.security.DownloadTokenRestriction
+import au.com.adtec.realtime.webservice.security.token.restriction.DownloadTokenRestriction
 
 class FileData {
 

@@ -1,5 +1,6 @@
-package au.com.adtec.realtime.webservice.security
+package au.com.adtec.realtime.webservice.security.token
 
+import au.com.adtec.realtime.webservice.security.TokenController
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 

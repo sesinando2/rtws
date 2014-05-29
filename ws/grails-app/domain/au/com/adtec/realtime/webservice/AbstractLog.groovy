@@ -1,6 +1,6 @@
 package au.com.adtec.realtime.webservice
 
-import au.com.adtec.realtime.webservice.security.RestToken
+import au.com.adtec.realtime.webservice.security.token.RestToken
 
 class AbstractLog {
 
