@@ -35,5 +35,6 @@
         </div>
         <g:layoutBody/>
     </div>
+    <r:layoutResources />
 	</body>
 </html>
