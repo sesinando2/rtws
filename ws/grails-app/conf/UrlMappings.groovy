@@ -29,6 +29,9 @@ class UrlMappings {
         //region Token Management
         "/token/web/$action?/$id?"(controller: "token")
         "/token/api/$action?/$id?"(controller: "token")
+
+        "/token/api/request/tracked/download"(controller: "token", action: "requestTrackedDownloadToken")
+        "/token/tracking/${token}/${tokenAction}.jpg"(controller: "token", action: "trackToken")
         //endregion
 
         //region Messaging Module

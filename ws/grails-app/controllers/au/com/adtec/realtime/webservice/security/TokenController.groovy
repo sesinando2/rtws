@@ -1,5 +1,7 @@
 package au.com.adtec.realtime.webservice.security
 
+import au.com.adtec.realtime.webservice.messaging.Message
+import au.com.adtec.realtime.webservice.messaging.MessagingService
 import au.com.adtec.realtime.webservice.repo.RepoService
 import au.com.adtec.realtime.webservice.security.token.RestToken
 import com.odobo.grails.plugin.springsecurity.rest.RestAuthenticationProvider
@@ -14,10 +16,13 @@ class TokenController {
     def grailsApplication
     TokenService tokenService
     RepoService repoService
+    MessagingService messagingService
 
     RestAuthenticationProvider restAuthenticationProvider
 
     static allowedMethods = [list: 'GET', clear: ['GET', 'DELETE'], delete: ['GET', 'DELETE'], request: ['GET', 'POST'], password: ['GET', 'POST'], revoke: ['GET', 'POST']]
+
+    def beforeInterceptor = [action: this.&validateAccess, only:['request', 'requestTracked']]
 
     @Secured(["permitAll"])
     def login(String token) {
@@ -121,5 +126,32 @@ class TokenController {
                 return
         }
         render(tokenList as JSON)
+    }
+
+    @Secured(["ROLE_ADMIN"])
+    def requestTrackedDownloadToken(Message message, int downloadCount, int readCount, int responseCount, String membersIdCsv, String fileIdCsv) {
+        def tokenMember = messagingService.
+                createMessage(message, membersIdCsv, fileIdCsv, downloadCount, readCount, responseCount)
+        render tokenMember as JSON
+    }
+
+    @Secured(["permitAll"])
+    def trackToken(String token, String tokenAction) {
+        RestToken restToken = RestToken.findByToken(token)
+        if (restToken) {
+            messagingService.processMessageProgress(restToken, tokenAction)
+            def image = repoService.getImageResource("images/tracker.png")
+            render file: image.inputStream, contentType: "image/png"
+            return
+        } else {
+            render(status: 404, text: "Token $token not found.");
+        }
+    }
+
+    private validateAccess() {
+        if (grailsApplication.config.au.com.adtec.security.localTokenGenerationOnly && request.remoteAddr != "127.0.0.1") {
+            render(status: 401)
+            return false;
+        }
     }
 }

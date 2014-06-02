@@ -4,6 +4,7 @@ import au.com.adtec.realtime.webservice.messaging.Message
 import au.com.adtec.realtime.webservice.messaging.MessagingService
 import au.com.adtec.realtime.webservice.repo.FileData
 import au.com.adtec.realtime.webservice.repo.RepoService
+import au.com.adtec.realtime.webservice.security.token.MemberToken
 import au.com.adtec.realtime.webservice.security.token.restriction.DownloadTokenRestriction
 import au.com.adtec.realtime.webservice.security.token.restriction.MessageTokenRestriction
 import au.com.adtec.realtime.webservice.security.token.RestToken
@@ -63,9 +64,37 @@ class TokenService {
         return tokenList
     }
 
+    Map<Integer, String> generateMemberMessageTokensWithFileAccess(
+            Message message, List<Long> fileIds, List<Integer> memberIds,
+            int readCount, int responseCount, int downloadCount) {
+
+        Map<Integer, String> memberToken = [:]
+        def files = FileData.where { id in fileIds }.list()
+        memberIds.each { memberToken.put(it,
+                generateMemberMessageTokenWithFileAccess(message, files, it, readCount, responseCount, downloadCount))}
+        return memberToken
+    }
+
+    private String generateMemberMessageTokenWithFileAccess(
+            Message message, List<FileData> files, int memberId, int readCount, int responseCount, int downloadCount) {
+        RestToken restToken = RestToken.findByToken(
+                generateMessageTokenWithFileAccess(message, files, readCount, responseCount, downloadCount))
+        MemberToken memberToken = MemberToken.findByMemberId(memberId) ?: new MemberToken(memberId: memberId, tokens: []).save()
+        memberToken.tokens.add(restToken)
+        memberToken.save(flush: true)
+        return restToken.token
+    }
+
     String generateMessageToken(Message message, int accessCount, int responseCount) {
         String token = generateToken(MessagingService.Users.MESSAGING_USER)
         createMessageRestriction(message, token, accessCount, responseCount)
+        return token
+    }
+
+    private String generateMessageTokenWithFileAccess(Message message, List<FileData> files, int accessCount, int responseCount, int downloadCount) {
+        String token = generateToken(MessagingService.Users.MESSAGING_REPO_READ_USER)
+        createMessageRestriction(message, token, accessCount, responseCount)
+        createDownloadRestrictions(token, files, downloadCount)
         return token
     }
 
@@ -78,7 +107,7 @@ class TokenService {
         return token
     }
 
-    private createDownloadRestrictions(String token, List<FileData> files, int accessCount) {
+    def createDownloadRestrictions(String token, List<FileData> files, int accessCount) {
         files.each { createDownloadRestriction(token, it, accessCount) }
     }
 

@@ -12,7 +12,7 @@ class RepoController extends AbstractController {
 
     static allowedMethods = [list: 'GET', delete: ['GET', 'DELETE'], upload: 'POST', download: 'GET']
 
-    def beforeInterceptor = [action: this.&authorizeDownloadToken, except: ['index', 'list', 'delete', 'purge', 'upload', 'thumb', 'square', 'rect', 'height', 'view']]
+    def beforeInterceptor = [action: this.&authorizeDownloadToken, only: ['download']]
 
     def repoService
     def tokenService
@@ -61,6 +61,7 @@ class RepoController extends AbstractController {
         }
         FileData file = repoService.getFile(id, token, params)
         doActionForFile(file) {
+            logAction(id, token)
             def data = file.data
             response.setHeader("Content-disposition", "attachment;filename=$file.filename")
             response.setHeader("Content-length", "$data.length")
@@ -78,14 +79,14 @@ class RepoController extends AbstractController {
         FileData file = repoService.getFile(id, restToken, [:])
         doActionForFile(file) {
             if (token && !restToken?.isValid) restToken.delete()
+            logThumbnail(id, restToken)
             ImageTool imageTool = repoService.loadImage(file)
             imageTool.thumbnailSpecial(width, height, 1, 1)
             file = new FileData(file.properties)
             file.data = imageTool.getBytes("JPEG")
             response.setHeader("Content-disposition", "filename=$file.filename")
             response.setHeader("Content-length", "$file.data.length")
-            response.setContentType("image/jpeg")
-            response.setContentLength(file.data.length)
+            response.setHeader("Content-type", "image/jpeg")
             response.outputStream << file.data
         }
     }
@@ -100,6 +101,7 @@ class RepoController extends AbstractController {
         FileData file = repoService.getFile(id, restToken, [:])
         doActionForFile(file) {
             if (token && !restToken?.isValid) restToken.delete()
+            logThumbnail(id, restToken)
             ImageTool imageTool = repoService.loadImage(file)
             imageTool.square()
             imageTool.swapSource()
@@ -108,8 +110,7 @@ class RepoController extends AbstractController {
             file.data = imageTool.getBytes("JPEG")
             response.setHeader("Content-disposition", "filename=$file.filename")
             response.setHeader("Content-length", "$file.data.length")
-            response.setContentType("image/jpeg")
-            response.setContentLength(file.data.length)
+            response.setHeader("Content-type", "image/jpeg")
             response.outputStream << file.data
         }
     }
@@ -124,6 +125,7 @@ class RepoController extends AbstractController {
         FileData file = repoService.getFile(id, restToken, [:])
         doActionForFile(file) {
             if (token && !restToken?.isValid) restToken.delete()
+            logThumbnail(id, restToken)
             ImageTool imageTool = repoService.loadImage(file)
             imageTool.thumbnailMin([width, height].max())
             imageTool.swapSource()
@@ -132,7 +134,7 @@ class RepoController extends AbstractController {
             file.data = imageTool.getBytes("JPEG")
             response.setHeader("Content-disposition", "filename=$file.filename")
             response.setHeader("Content-length", "$file.data.length")
-            response.setContentType("image/jpeg")
+            response.setHeader("Content-type", "image/jpeg")
             response.setContentLength(file.data.length)
             response.outputStream << file.data
         }
@@ -148,14 +150,14 @@ class RepoController extends AbstractController {
         FileData file = repoService.getFile(id, restToken, [:])
         doActionForFile(file) {
             if (token && !restToken?.isValid) restToken.delete()
+            logThumbnail(id, restToken)
             ImageTool imageTool = repoService.loadImage(file)
             imageTool.height = height
             file = new FileData(file.properties)
             file.data = imageTool.getBytes("JPEG")
             response.setHeader("Content-disposition", "filename=$file.filename")
             response.setHeader("Content-length", "$file.data.length")
-            response.setContentType("image/jpeg")
-            response.setContentLength(file.data.length)
+            response.setHeader("Content-type", "image/jpeg")
             response.outputStream << file.data
         }
     }
@@ -191,10 +193,6 @@ class RepoController extends AbstractController {
     @Secured(["permitAll"])
     def view(String token, Integer id) {
         RestToken restToken = RestToken.findByToken(token);
-        if (!(restToken && restToken.isAllowedForFile(idAsArray))) {
-            render(status: 401, text: "Token not allowed for file with id/s: $params.id")
-            return
-        }
         FileData file = repoService.getFile(id, restToken, [:])
         render(view: "view", model: [token: token, file: file])
     }
@@ -223,8 +221,21 @@ class RepoController extends AbstractController {
     private authorizeDownloadToken() {
         RestToken token = RestToken.findByToken(token)
         if (!repoService.isAdmin && !(token && token.isAllowedForFile(idAsArray))) {
-            render(status: 401, text: "Token not allowed for file with id/s: $params.id")
+            render(status: 401, text: "Token '$token' not allowed for file with id/s: $params.id")
             return false
         }
+    }
+
+    private logThumbnail(int id, RestToken token) {
+        FileData file = FileData.get(id)
+        repoService.logThumbnail(file, token)
+    }
+
+    private void logAction(int id, RestToken token) {
+        def fileForLog = FileData.get(id)
+        if (params?.thumb)
+            repoService.logThumbnail(fileForLog, token)
+        else
+            repoService.logDownload(fileForLog, token)
     }
 }

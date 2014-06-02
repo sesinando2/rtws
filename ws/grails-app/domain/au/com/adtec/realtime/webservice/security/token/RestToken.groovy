@@ -15,7 +15,7 @@ class RestToken {
     def grailsApplication
     def sessionFactory
 
-    static constraints = {}
+    static constraints = { }
 
     static mapping = {
         autoTimestamp true
@@ -43,6 +43,7 @@ class RestToken {
     boolean isAllowedForFile(int... fileIds) {
         for (int id : fileIds) {
             def restriction = DownloadTokenRestriction.where { token == this && fileData.id == id }.find()
+            println restriction
             if (!restriction || restriction.isRestricted) return false
         }
         return true

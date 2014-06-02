@@ -7,6 +7,7 @@ import au.com.adtec.realtime.webservice.security.Role
 import au.com.adtec.realtime.webservice.security.User
 import grails.transaction.Transactional
 import org.grails.plugins.imagetools.ImageTool
+import org.springframework.core.io.Resource
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 @Transactional
@@ -86,7 +87,6 @@ class RepoService extends AbstractService {
         FileData fileData = null
         if (restToken) {
             fileData = getFileFromToken(restToken, id)
-            createDownloadFileLog(fileData, restToken)
         } else if (isAdmin) {
             fileData = FileData.get(id)
         }
@@ -129,6 +129,22 @@ class RepoService extends AbstractService {
         return fileList
     }
 
+    Resource getImageResource(String filePath) {
+        return grailsResourceLocator.findResourceForURI(filePath)
+    }
+
+    void logDownload(FileData fileData, RestToken restToken) {
+        if (restToken?.isValid) {
+            createFileLog(restToken, fileData, FileDataAction.DOWNLOAD)
+        }
+    }
+
+    void logThumbnail(FileData fileData, RestToken restToken) {
+        if (restToken?.isValid) {
+            createFileLog(restToken, fileData, FileDataAction.THUMBNAIL)
+        }
+    }
+
     boolean getIsAdmin() {
         def authorities = currentUser?.authorities.collect { it.authority }
         return authorities.contains('ROLE_ADMIN') || authorities.contains('ROLE_REPO_ADMIN')
@@ -155,12 +171,6 @@ class RepoService extends AbstractService {
         return null
     }
 
-    private void createDownloadFileLog(FileData fileData, RestToken restToken) {
-        if (restToken?.isValid) {
-            createFileLog(restToken, fileData, FileDataAction.DOWNLOAD)
-        }
-    }
-
     private void createUploadLog(FileData fileData, RestToken restToken) {
         if (restToken?.isValid) {
             createFileLog(restToken, fileData, FileDataAction.UPLOAD)
@@ -168,7 +178,8 @@ class RepoService extends AbstractService {
     }
 
     private createFileLog(RestToken token, FileData file, FileDataAction action) {
-        if (token && file && action) new FileDataLog(token: token, fileData: file, action: action, tokenValue: token?.token).save(flush: true)
+        if (token && file && action)
+            new FileDataLog(token: token, fileData: file, action: action, tokenValue: token?.token).save(flush: true)
     }
 
     //region Roles & Users
@@ -182,6 +193,7 @@ class RepoService extends AbstractService {
         static User REPO_ADMIN
         static User REPO_READ
         static User REPO_UPLOAD
+        static User MESSAGING_REPO_READ_USER
     }
     //endregion
 }

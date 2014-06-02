@@ -16,7 +16,7 @@ class DownloadTokenRestriction extends TokenRestriction {
 
     boolean getIsRestricted() {
         if (numberOfAccess == 0) return false
-        def logs = FileDataLog.findAllByToken(token)
-        return numberOfAccess <= logs.size()
+        def logs = FileDataLog.findAllByTokenAndFileData(token, fileData)
+        return logs.size() >= numberOfAccess
     }
 }

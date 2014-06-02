@@ -26,6 +26,7 @@ public class WebServiceClient {
 
     public static final String TOKEN_REVOKE_URL = "token/api/revoke";
     public static final String TOKEN_REQUEST_URL = "token/api/request";
+    public static final String REQUEST_TRACKED_TOKEN_URL = TOKEN_REQUEST_URL + "/tracked/download";
     public static final String REPO_DETAILS_URL = "repo/api/details";
     public static final String REPO_DOWNLOAD_URL = "repo/web/download/";
 
@@ -86,6 +87,31 @@ public class WebServiceClient {
             String[] tokensArray = new String[tokensJsonArray.length()];
             for (int i = 0; i < tokensJsonArray.length(); i++) tokensArray[i] = (String) tokensJsonArray.get(i);
             return tokensArray;
+        } catch (UnirestException e) {
+            log.error(e);
+        }
+        return null;
+    }
+
+    public JsonNode requestTrackedDownloadToken(int incidentId, int instanceId, int messageType, String messageContent,
+                                                Integer downloadCount,
+                                                Integer readCount,
+                                                Integer responseCount,
+                                                Integer[] memberIds,
+                                                Integer[] fileIds) {
+        try {
+            HttpResponse<JsonNode> response = Unirest.post(baseUrl + REQUEST_TRACKED_TOKEN_URL).basicAuth(username, password).
+                    field("incidentId", String.valueOf(incidentId)).
+                    field("instanceId", String.valueOf(instanceId)).
+                    field("messageType", String.valueOf(messageType)).
+                    field("messageContent", messageContent).
+                    field("downloadCount", downloadCount.toString()).
+                    field("readCount", readCount.toString()).
+                    field("responseCount", responseCount.toString()).
+                    field("membersIdCsv", StringUtils.join(memberIds, ",")).
+                    field("fileIdCsv", StringUtils.join(fileIds, ",")).
+                    asJson();
+            return response.getBody();
         } catch (UnirestException e) {
             log.error(e);
         }

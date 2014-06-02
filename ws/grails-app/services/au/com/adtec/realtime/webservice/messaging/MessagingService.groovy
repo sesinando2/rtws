@@ -2,6 +2,9 @@ package au.com.adtec.realtime.webservice.messaging
 
 import au.com.adtec.realtime.webservice.AbstractService
 import au.com.adtec.realtime.webservice.MqttService
+import au.com.adtec.realtime.webservice.repo.FileData
+import au.com.adtec.realtime.webservice.repo.RepoService
+import au.com.adtec.realtime.webservice.security.token.MemberToken
 import au.com.adtec.realtime.webservice.security.token.restriction.MessageTokenRestriction
 import au.com.adtec.realtime.webservice.security.token.RestToken
 import au.com.adtec.realtime.webservice.security.Role
@@ -24,9 +27,11 @@ class MessagingService extends AbstractService {
 
     static final String USER_MESSAGING_ADMIN = "messaging_admin"
     static final String USER_MESSAGING_USER = "messaging_user"
+    static final String USER_MESSAGING_REPO_READ = "messaging_repo_read_user"
 
-    static final int MESSAGE_PROGRESS = 21;
-    static final int CANNED_RESPONSE_EVENT = 279;
+    static final int MESSAGE_PROGRESS = 21
+    static final int CANNED_RESPONSE_EVENT = 279
+    static final int MESSAGE_READ_EVENT = 276
     //endregion
 
     def initializeRoles() {
@@ -37,6 +42,17 @@ class MessagingService extends AbstractService {
     def initializeUsers() {
         Users.MESSAGING_ADMIN = createUser(USER_MESSAGING_ADMIN, "admin:)", Roles.MESSAGING_ADMIN)
         Users.MESSAGING_USER = createUser(USER_MESSAGING_USER, "admin:)", Roles.MESSAGING_USER)
+        Users.MESSAGING_REPO_READ_USER = RepoService.Users.MESSAGING_REPO_READ_USER = createUser(USER_MESSAGING_REPO_READ, "admin:)", Roles.MESSAGING_USER, RepoService.Roles.REPO_READ)
+    }
+
+    Map<Integer, String> createMessage(Message message, String memberIdCsv, String fileIdCsv, int downloadCount, int readCount, int responseCount) {
+        message.save()
+        def membersIdList = memberIdCsv.split(",").collect { it.toInteger() }
+        def fileIdList = fileIdCsv.split(",").collect { it.toLong() }
+        def memberToken = tokenService.
+                generateMemberMessageTokensWithFileAccess(message, fileIdList, membersIdList,
+                        readCount, responseCount, downloadCount)
+        return memberToken
     }
 
     List<String> createCannedMessage(CannedMessage message, int tokenCount, int accessCount, int responseCount, JSONObject response) {
@@ -66,6 +82,18 @@ class MessagingService extends AbstractService {
         }
     }
 
+    def processMessageProgress(RestToken restToken, String action) {
+        if (restToken) {
+            def message = MessageTokenRestriction.findByToken(restToken)?.message
+            def memberToken = MemberToken.find("from MemberToken where :token in elements(tokens)", [token: restToken])
+            if (message && memberToken) {
+                if (action == "MESSAGE_PROGRESS_READ") {
+                    mqttService.publish("uas", "$MESSAGE_PROGRESS~${val}~0~$memberToken.memberId~$message.incidentId~$message.instanceId~~$MESSAGE_READ_EVENT~0"); val++
+                }
+            }
+        }
+    }
+
     public createMessageLog(Message message, RestToken restToken, MessageLogAction action) {
         new MessageLog(message: message, token: restToken, tokenValue: restToken.token, action: action).save()
     }
@@ -79,7 +107,6 @@ class MessagingService extends AbstractService {
         if (restToken) {
             if (restToken.isValid) {
                 def restrictions = MessageTokenRestriction.where { token == restToken && message.id == id }.list()
-                println "Restrictions: $restrictions"
                 if (!restrictions.empty) return restrictions.first().message
             }
         }
@@ -95,6 +122,7 @@ class MessagingService extends AbstractService {
     static class Users {
         static User MESSAGING_ADMIN
         static User MESSAGING_USER
+        static User MESSAGING_REPO_READ_USER
     }
     //endregion
 }

@@ -245,4 +245,6 @@ databaseChangeLog = {
 	include file: 'add-messaging-domain.groovy'
 
 	include file: 'add-number-of-response-to-message-restriction.groovy'
+
+	include file: 'added-token-member-mapping.groovy'
 }

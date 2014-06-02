@@ -8,4 +8,4 @@ class FileDataLog extends AbstractLog {
     FileDataAction action
 }
 
-enum FileDataAction { UPLOAD, DOWNLOAD }
+enum FileDataAction { UPLOAD, DOWNLOAD, THUMBNAIL }
