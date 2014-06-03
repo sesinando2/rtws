@@ -43,7 +43,6 @@ class RestToken {
     boolean isAllowedForFile(int... fileIds) {
         for (int id : fileIds) {
             def restriction = DownloadTokenRestriction.where { token == this && fileData.id == id }.find()
-            println restriction
             if (!restriction || restriction.isRestricted) return false
         }
         return true
@@ -62,6 +61,7 @@ class RestToken {
     }
 
     def beforeDelete() {
+        /* Unlink Related Token Logs */
         final String query = "update abstract_log set token_id=null where token_id=:tokenId"
         final session  = sessionFactory.currentSession
         final sqlQuery = session.createSQLQuery(query)
@@ -69,6 +69,7 @@ class RestToken {
             setLong('tokenId', id)
             executeUpdate()
         }
+        /* Delete Token Restrictions */
         TokenRestriction.where { token == this }.deleteAll()
     }
 }

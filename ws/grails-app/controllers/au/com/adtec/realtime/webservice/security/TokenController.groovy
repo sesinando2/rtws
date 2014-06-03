@@ -4,6 +4,7 @@ import au.com.adtec.realtime.webservice.messaging.Message
 import au.com.adtec.realtime.webservice.messaging.MessagingService
 import au.com.adtec.realtime.webservice.repo.RepoService
 import au.com.adtec.realtime.webservice.security.token.RestToken
+import au.com.adtec.realtime.webservice.security.token.restriction.TokenRestriction
 import com.odobo.grails.plugin.springsecurity.rest.RestAuthenticationProvider
 import com.odobo.grails.plugin.springsecurity.rest.RestAuthenticationToken
 import grails.converters.JSON
@@ -54,6 +55,13 @@ class TokenController {
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond RestToken.list(params), model:[restTokenInstanceCount: RestToken.count()]
+    }
+
+    @Secured(["ROLE_ADMIN"])
+    def view(RestToken restTokenInstance) {
+        def roles = User.findByUsername(restTokenInstance.login).authorities.collect { it.authority }.join(", ")
+        def restrictions = TokenRestriction.findAllByToken(restTokenInstance)
+        respond restTokenInstance, model: [roles: roles, restrictions: restrictions]
     }
 
     @Secured(["ROLE_ADMIN"])
@@ -130,9 +138,16 @@ class TokenController {
 
     @Secured(["ROLE_ADMIN"])
     def requestTrackedDownloadToken(Message message, int downloadCount, int readCount, int responseCount, String membersIdCsv, String fileIdCsv) {
-        def tokenMember = messagingService.
-                createMessage(message, membersIdCsv, fileIdCsv, downloadCount, readCount, responseCount)
-        render tokenMember as JSON
+        def response = [:]
+        if (message.validate()) {
+            def tokenMember = messagingService.createMessage(message, membersIdCsv, fileIdCsv, downloadCount, readCount, responseCount)
+            response.success = true
+            response.tokens = tokenMember
+        } else {
+            response.success = false
+            response.errors = message.errors
+        }
+        render response as JSON
     }
 
     @Secured(["permitAll"])

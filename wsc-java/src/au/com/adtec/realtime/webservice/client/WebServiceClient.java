@@ -93,6 +93,15 @@ public class WebServiceClient {
         return null;
     }
 
+    public JsonNode requestTrackingToken(int incidentId, int instanceId, int messageType, String messageContent,
+                                                Integer downloadCount,
+                                                Integer readCount,
+                                                Integer responseCount,
+                                                Integer[] memberIds) {
+        return requestTrackedDownloadToken(
+                incidentId, instanceId, messageType, messageContent, downloadCount, readCount, responseCount, memberIds, new Integer[0]);
+    }
+
     public JsonNode requestTrackedDownloadToken(int incidentId, int instanceId, int messageType, String messageContent,
                                                 Integer downloadCount,
                                                 Integer readCount,
@@ -152,24 +161,24 @@ public class WebServiceClient {
         return null;
     }
 
-    public JSONObject addCannedMessage(int incidentId, int instanceId, int fromAgentId, int fromMemberId, String messageContent, String cannedResponse, int responseTypeId, int tokenCount, int accessCount) throws IOException {
+    public JSONObject addCannedMessage(int incidentId, int instanceId, int fromAgentId, int fromMemberId, String messageContent, String cannedResponse, int responseTypeId, Integer[] membersId) throws IOException {
+        return addCannedMessage(incidentId, instanceId, fromAgentId, fromMemberId, messageContent, cannedResponse, responseTypeId, 0, membersId);
+    }
+
+    public JSONObject addCannedMessage(int incidentId, int instanceId, int fromAgentId, int fromMemberId, String messageContent, String cannedResponse, int responseTypeId, int accessCount, Integer[] membersId) throws IOException {
         String url = MessageFormat.format("{0}{1}", baseUrl, "message/api/canned/add");
         try {
             HttpResponse<JsonNode> response = Unirest.post(url).basicAuth(username, password).field("incidentId", incidentId).
                     field("instanceId", String.valueOf(instanceId)).field("fromAgentId", String.valueOf(fromAgentId)).
                     field("fromMemberId", String.valueOf(fromMemberId)).field("messageContent", String.valueOf(messageContent)).
                     field("messageType", String.valueOf(5)).field("responseTypeId", String.valueOf(responseTypeId)).
-                    field("tokenCount", String.valueOf(tokenCount)).field("accessCount", String.valueOf(accessCount)).
+                    field("memberIdCsv", StringUtils.join(membersId, ",")).field("accessCount", String.valueOf(accessCount)).
                     field("responseCount", "1").field("response", cannedResponse).asJson();
             return response.getBody().getObject();
         } catch (UnirestException e) {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public JSONObject addCannedMessage(int incidentId, int instanceId, int fromAgentId, int fromMemberId, String messageContent, String cannedResponse, int responseTypeId) throws IOException {
-        return addCannedMessage(incidentId, instanceId, fromAgentId, fromMemberId, messageContent, cannedResponse, responseTypeId, 1, 0);
     }
 
     public File download(String token, int fileId) throws IOException {
@@ -263,7 +272,7 @@ public class WebServiceClient {
 
     @Override
     protected void finalize() throws Throwable {
-        super.finalize();
         Unirest.shutdown();
+        super.finalize();
     }
 }

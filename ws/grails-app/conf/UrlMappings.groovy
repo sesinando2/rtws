@@ -30,6 +30,9 @@ class UrlMappings {
         "/token/web/$action?/$id?"(controller: "token")
         "/token/api/$action?/$id?"(controller: "token")
 
+        "/token/web/"(controller: "token", action: "index")
+        "/token/web/$id"(controller: "token", action: "view")
+
         "/token/api/request/tracked/download"(controller: "token", action: "requestTrackedDownloadToken")
         "/token/tracking/${token}/${tokenAction}.jpg"(controller: "token", action: "trackToken")
         //endregion
@@ -38,7 +41,7 @@ class UrlMappings {
         "/message/web/canned/add"(controller: "message", action: "addCanned")
         "/message/api/canned/add"(controller: "message", action: "addCanned")
 
-        "/message/web/$token/canned/response/$id/$fromMemberId/$cannedResponse"(controller: "message", action: "cannedResponse")
+        "/message/web/$token/canned/response/$id/$cannedResponse"(controller: "message", action: "cannedResponse")
         "/message/api/canned/response/$id"(controller: "message", action: "cannedResponse")
 
         "/message/web/$action?/$id?"(controller: "message")

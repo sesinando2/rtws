@@ -3,6 +3,10 @@ body {
     color: #FFFFFF;
 }
 
+a {
+    color: #eeeeee;
+}
+
 /* Main Navigation Menu */
 .navigation ul {
     list-style-type: none;
@@ -37,9 +41,6 @@ body {
 }
 /* End Main Navigation Menu */
 
-.center {
-    text-align: center;
-}
 
 /* Table Styling */
 table {
@@ -53,6 +54,7 @@ table thead {
 table thead a {
     color: #eeeeee;
     font-size: 15px;
+    font-weight: bolder;
 }
 
 table td, table th {
@@ -66,20 +68,27 @@ table tbody tr.odd {
 /* End Table Styling */
 
 /* Web Forms */
-form label, form input {
+form label, form input, form p {
     width: 45%;
     float: right;
+    margin-bottom: 0;
+}
+
+form label, form p {
+    line-height: 30px;
+}
+
+form p {
+    text-align: left;
 }
 
 form label {
     text-align: right;
     margin-right: 10px;
-    line-height: 30px;
 }
 
 form input {
     padding: 5px;
-    width: auto;
 }
 
 form > div {
@@ -101,24 +110,39 @@ form input[type=checkbox] {
     height: 30px;
     margin: 0;
 }
-
 /* End Web Froms */
 
+/* Generic Page */
 #page_heading {
     margin-top: 5%;
     text-align: center;
 }
 
-#page_heading h1 {
+#page_heading h1, .section_heading h1
+#page_heading h2, .section_heading h2,
+#page_heading h3, .section_heading h3,
+#page_heading h4, .section_heading h4,
+#page_heading h5, .section_heading h5,
+#page_heading h6, .section_heading h6 {
     color: #FEB02A;
-    font-size: 2.5em;
     text-transform: capitalize;
     margin-bottom: 0;
+    text-align: center;
 }
 
 #page_heading p {
     font-style: italic;
 }
+
+#page_header h1, .section_heading h1 { font-size: 2.5em; }
+#page_header h2, .section_heading h2 { font-size: 2.0em; }
+#page_header h3, .section_heading h3 { font-size: 1.5em; }
+#page_header h4, .section_heading h4 { font-size: 1.0em; }
+#page_header h5, .section_heading h5 { font-size: 0.5em; }
+#page_header h6, .section_heading h6 { font-size: 0em; }
+
+/* End Generic Page */
+
 /* Login Page */
 #login {
     margin: auto;
@@ -139,13 +163,13 @@ form input[type=checkbox] {
     #loginForm, .login_form_title {
         max-width: 300px;
         margin: auto;
+        text-align: center;
     }
 
     #loginForm {
         position: relative;
-        left: -60px;
+        left: -40px;
     }
-
 
     #loginForm div.remember_me_container {
         float: right;
@@ -190,14 +214,53 @@ form input[type=checkbox] {
     /* End Test Page */
 /* End Repository Page */
 
+/* Absolute Center */
 .absolute_center {
     margin: auto;
     position: absolute;
     top: 0; left: 0; bottom: 0; right: 0;
     text-align: center;
 }
+/* End Absolute Center */
 
+/* Default Layout */
 #default_container {
     max-width: 500px;
     max-height: 500px;
 }
+/* End Default Layout */
+
+/* Center */
+.center {
+    text-align: center;
+}
+/* End Center */
+
+/* Pagination */
+div.pagination {
+    text-align: center;
+}
+
+div.pagination a, div.pagination span {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #666666;
+}
+/* End Pagination */
+
+/* Token Pages */
+    /* View Page */
+    div.token_view form {
+        max-width: 400px;
+        margin: auto;
+    }
+
+    div.token_view form label {
+        width: 100px;
+    }
+
+    div.token_view form p {
+        width: 250px;
+    }
+    /* End View Page */
+/* End Token Pages */

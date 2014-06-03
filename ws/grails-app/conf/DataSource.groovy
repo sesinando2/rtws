@@ -32,7 +32,7 @@ environments {
             /*driverClassName = "org.postgresql.Driver"
             dialect = "org.hibernate.dialect.PostgreSQLDialect"
             url = "jdbc:postgresql://localhost:5432/webservice_test"
-            username = "nando"
+            username = "adtec"
             password = ""*/
 
             // ADTEC ICTEST

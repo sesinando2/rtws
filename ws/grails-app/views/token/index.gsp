@@ -16,11 +16,11 @@
         <thead>
         <tr>
 
-            <g:sortableColumn property="dateCreated" title="${message(code: 'restToken.dateCreated.label', default: 'Date Created')}" />
+            <g:sortableColumn property="token" title="${message(code: 'restToken.token.label', default: 'Token')}" />
 
             <g:sortableColumn property="login" title="${message(code: 'restToken.login.label', default: 'Login')}" />
 
-            <g:sortableColumn property="token" title="${message(code: 'restToken.token.label', default: 'Token')}" />
+            <g:sortableColumn property="dateCreated" title="${message(code: 'restToken.dateCreated.label', default: 'Date Created')}" />
 
         </tr>
         </thead>
@@ -28,11 +28,11 @@
         <g:each in="${restTokenInstanceList}" status="i" var="restTokenInstance">
             <tr class="${((i + 1) % 2) == 0 ? 'even' : 'odd'}">
 
-                <td><g:link action="show" id="${restTokenInstance.id}">${fieldValue(bean: restTokenInstance, field: "dateCreated")}</g:link></td>
+                <td><g:link controller="token" action="view" id="${restTokenInstance.id}">${fieldValue(bean: restTokenInstance, field: "token")}</g:link></td>
 
                 <td>${fieldValue(bean: restTokenInstance, field: "login")}</td>
 
-                <td>${fieldValue(bean: restTokenInstance, field: "token")}</td>
+                <td>${fieldValue(bean: restTokenInstance, field: "dateCreated")}</td>
 
             </tr>
         </g:each>

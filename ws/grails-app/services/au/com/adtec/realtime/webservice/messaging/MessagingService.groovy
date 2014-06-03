@@ -2,9 +2,7 @@ package au.com.adtec.realtime.webservice.messaging
 
 import au.com.adtec.realtime.webservice.AbstractService
 import au.com.adtec.realtime.webservice.MqttService
-import au.com.adtec.realtime.webservice.repo.FileData
 import au.com.adtec.realtime.webservice.repo.RepoService
-import au.com.adtec.realtime.webservice.security.token.MemberToken
 import au.com.adtec.realtime.webservice.security.token.restriction.MessageTokenRestriction
 import au.com.adtec.realtime.webservice.security.token.RestToken
 import au.com.adtec.realtime.webservice.security.Role
@@ -48,19 +46,19 @@ class MessagingService extends AbstractService {
     Map<Integer, String> createMessage(Message message, String memberIdCsv, String fileIdCsv, int downloadCount, int readCount, int responseCount) {
         message.save()
         def membersIdList = memberIdCsv.split(",").collect { it.toInteger() }
-        def fileIdList = fileIdCsv.split(",").collect { it.toLong() }
-        def memberToken = tokenService.
-                generateMemberMessageTokensWithFileAccess(message, fileIdList, membersIdList,
-                        readCount, responseCount, downloadCount)
+        def fileIdList = fileIdCsv.split(",").collect { if (!it?.empty && it.number) { it.toLong() } }
+        def memberToken = tokenService.generateMemberMessageTokensWithFileAccess(message, fileIdList, membersIdList, readCount, responseCount, downloadCount)
         return memberToken
     }
 
-    List<String> createCannedMessage(CannedMessage message, int tokenCount, int accessCount, int responseCount, JSONObject response) {
+    Map<Integer, String> createCannedMessage(CannedMessage message, String memberIdCsv, int accessCount, int responseCount, JSONObject response) {
         message.responses = []
-        for (String key : response.keySet())
+        for (String key : response.keySet()) {
             message.responses.add(new CannedMessageResponse(messageResponsesId: key, value: response.get(key)))
+        }
         message.save()
-        return tokenService.generateMessageToken(message, tokenCount, accessCount, responseCount)
+        def membersId = memberIdCsv?.split(",").collect { if (it?.number) it.toInteger() } ?: []
+        return tokenService.generateMessageToken(message, membersId, accessCount, responseCount)
     }
 
     CannedMessage getCannedMessage(int id, RestToken restToken) {
@@ -74,18 +72,18 @@ class MessagingService extends AbstractService {
         return message
     }
 
-    def respondToCannedMessage(CannedMessage message, RestToken restToken, int fromMemberId, int cannedResponse) {
+    def respondToCannedMessage(CannedMessage message, RestToken restToken, int cannedResponse) {
         if (restToken) {
+            def memberToken = tokenService.getMemberToken(restToken)
             createMessageLog(message, restToken, MessageLogAction.RESPOND)
-            restToken.delete()
-            mqttService.publish("uas", "$MESSAGE_PROGRESS~$val~0~$fromMemberId~$message.incidentId~$message.instanceId~~$CANNED_RESPONSE_EVENT~$cannedResponse"); val++
+            mqttService.publish("uas", "$MESSAGE_PROGRESS~$val~0~$memberToken.memberId~$message.incidentId~$message.instanceId~~$CANNED_RESPONSE_EVENT~$cannedResponse"); val++
         }
     }
 
     def processMessageProgress(RestToken restToken, String action) {
         if (restToken) {
             def message = MessageTokenRestriction.findByToken(restToken)?.message
-            def memberToken = MemberToken.find("from MemberToken where :token in elements(tokens)", [token: restToken])
+            def memberToken = tokenService.getMemberToken(restToken)
             if (message && memberToken) {
                 if (action == "MESSAGE_PROGRESS_READ") {
                     mqttService.publish("uas", "$MESSAGE_PROGRESS~${val}~0~$memberToken.memberId~$message.incidentId~$message.instanceId~~$MESSAGE_READ_EVENT~0"); val++

@@ -30,9 +30,29 @@ class TokenService {
             def expiredTokens = RestToken.where { dateCreated <= expiryDate.time }.list()
             if (!expiredTokens.empty) {
                 log.debug("Deleting " + expiredTokens.size() + " tokens...");
-                expiredTokens.each { if (!it.isValid) it.delete() }
+                expiredTokens.each {
+                    if (!it.isValid)  {
+                        def memberToken = getMemberToken(it)
+                        if (memberToken) {
+                            memberToken.tokens.remove(it)
+                            memberToken.save()
+                        }
+
+                    }
+                }
             }
         }
+    }
+
+    List<String> generateUploadToken(int fileCount) {
+        String tokenValue = generateToken(RepoService.Users.REPO_UPLOAD)
+        createUploadRestriction(tokenValue, fileCount)
+        return [tokenValue]
+    }
+
+    private createUploadRestriction(String token, int fileCount) {
+        RestToken restToken = RestToken.findByToken(token)
+        if (restToken) new UploadTokenRestriction(token: restToken, numberOfFiles: fileCount).save(flush: true)
     }
 
     List<String> generateDownloadToken(List<FileData> files, int amount, int accessCount) {
@@ -47,48 +67,38 @@ class TokenService {
         return token
     }
 
-    List<String> generateUploadToken(int fileCount) {
-        String tokenValue = generateToken(RepoService.Users.REPO_UPLOAD)
-        createUploadRestriction(tokenValue, fileCount)
-        return [tokenValue]
+    void createDownloadRestrictions(String token, List<FileData> files, int accessCount) {
+        files.each { createDownloadRestriction(token, it, accessCount) }
     }
 
-    def createDownloadRestriction(String token, FileData fileData, int accessCount) {
+    void createDownloadRestriction(String token, FileData fileData, int accessCount) {
         RestToken restToken = RestToken.findByToken(token)
         if (restToken) new DownloadTokenRestriction(token: restToken, fileData: fileData, numberOfAccess: accessCount).save(flush: true)
     }
 
-    List<String> generateMessageToken(Message message, int amount, int accessCount, int responseCount) {
-        List<String> tokenList = []
-        amount.times { tokenList.add(generateMessageToken(message, accessCount, responseCount))  }
-        return tokenList
+    Map<Integer, String> generateMessageToken(Message message, List<Integer> membersId, int accessCount, int responseCount) {
+        def tokenMap = [:]
+        membersId.each { tokenMap.put(it, generateMessageToken(message, it, accessCount, responseCount)) }
+        return tokenMap
     }
 
-    Map<Integer, String> generateMemberMessageTokensWithFileAccess(
-            Message message, List<Long> fileIds, List<Integer> memberIds,
-            int readCount, int responseCount, int downloadCount) {
-
-        Map<Integer, String> memberToken = [:]
-        def files = FileData.where { id in fileIds }.list()
-        memberIds.each { memberToken.put(it,
-                generateMemberMessageTokenWithFileAccess(message, files, it, readCount, responseCount, downloadCount))}
-        return memberToken
-    }
-
-    private String generateMemberMessageTokenWithFileAccess(
-            Message message, List<FileData> files, int memberId, int readCount, int responseCount, int downloadCount) {
-        RestToken restToken = RestToken.findByToken(
-                generateMessageTokenWithFileAccess(message, files, readCount, responseCount, downloadCount))
-        MemberToken memberToken = MemberToken.findByMemberId(memberId) ?: new MemberToken(memberId: memberId, tokens: []).save()
-        memberToken.tokens.add(restToken)
-        memberToken.save(flush: true)
-        return restToken.token
-    }
-
-    String generateMessageToken(Message message, int accessCount, int responseCount) {
+    String generateMessageToken(Message message, int memberId, int accessCount, int responseCount) {
         String token = generateToken(MessagingService.Users.MESSAGING_USER)
+        updateMemberToken(memberId, token)
         createMessageRestriction(message, token, accessCount, responseCount)
         return token
+    }
+
+    private createMessageRestriction(Message message, String token, int readCount, int responseCount) {
+        RestToken restToken = RestToken.findByToken(token)
+        if (restToken) new MessageTokenRestriction(token: restToken, message: message, numberOfAccess: readCount, responseCount: responseCount).save(flush: true)
+    }
+
+    Map<Integer, String> generateMemberMessageTokensWithFileAccess(Message message, List<Long> fileIds, List<Integer> memberIds,int readCount, int responseCount, int downloadCount) {
+        Map<Integer, String> memberToken = [:]
+        def files = FileData.where { id in fileIds }.list()
+        memberIds.each { memberToken.put(it, generateMemberMessageTokenWithFileAccess(message, files, it, readCount, responseCount, downloadCount))}
+        return memberToken
     }
 
     private String generateMessageTokenWithFileAccess(Message message, List<FileData> files, int accessCount, int responseCount, int downloadCount) {
@@ -96,6 +106,23 @@ class TokenService {
         createMessageRestriction(message, token, accessCount, responseCount)
         createDownloadRestrictions(token, files, downloadCount)
         return token
+    }
+
+    private String generateMemberMessageTokenWithFileAccess(Message message, List<FileData> files, int memberId, int readCount, int responseCount, int downloadCount) {
+        RestToken restToken = RestToken.findByToken(generateMessageTokenWithFileAccess(message, files, readCount, responseCount, downloadCount))
+        updateMemberToken(memberId, restToken)
+        return restToken.token
+    }
+
+    private void updateMemberToken(int memberId, String token) {
+        RestToken restToken = RestToken.findByToken(token)
+        updateMemberToken(memberId, restToken)
+    }
+
+    private void updateMemberToken(int memberId, RestToken token) {
+        MemberToken memberToken = MemberToken.findByMemberId(memberId) ?: new MemberToken(memberId: memberId, tokens: []).save()
+        memberToken.tokens.add(token)
+        memberToken.save(flush: true)
     }
 
     private String generateToken(User user) {
@@ -107,17 +134,7 @@ class TokenService {
         return token
     }
 
-    def createDownloadRestrictions(String token, List<FileData> files, int accessCount) {
-        files.each { createDownloadRestriction(token, it, accessCount) }
-    }
-
-    private createUploadRestriction(String token, int fileCount) {
-        RestToken restToken = RestToken.findByToken(token)
-        if (restToken) new UploadTokenRestriction(token: restToken, numberOfFiles: fileCount).save(flush: true)
-    }
-
-    private createMessageRestriction(Message message, String token, int accessCount, int responseCount) {
-        RestToken restToken = RestToken.findByToken(token)
-        if (restToken) new MessageTokenRestriction(token: restToken, message: message, numberOfAccess: accessCount, responseCount: responseCount).save(flush: true)
+    MemberToken getMemberToken(RestToken token) {
+        return MemberToken.find("from MemberToken where :token in elements(tokens)", [token: token])
     }
 }
