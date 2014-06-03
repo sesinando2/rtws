@@ -23,23 +23,13 @@ class TokenService {
     SpringSecurityService springSecurityService
 
     def cleanUpToken() {
-        def tokenExpiry = grailsApplication.config.au.com.adtec.security.tokenExpiry
+        int tokenExpiry = grailsApplication.config.au.com.adtec.security.tokenExpiry
         if (tokenExpiry > 0) {
             def expiryDate = Calendar.instance
             expiryDate.add(Calendar.SECOND, -tokenExpiry)
-            def expiredTokens = RestToken.where { dateCreated <= expiryDate.time }.list()
-            if (!expiredTokens.empty) {
-                log.debug("Deleting " + expiredTokens.size() + " tokens...");
-                expiredTokens.each {
-                    if (!it.isValid)  {
-                        def memberToken = getMemberToken(it)
-                        if (memberToken) {
-                            memberToken.tokens.remove(it)
-                            memberToken.save()
-                        }
-
-                    }
-                }
+            RestToken.where { dateCreated <= expiryDate.time }.list().each {
+                it.delete()
+                log.debug("Token: $it deleted.")
             }
         }
     }

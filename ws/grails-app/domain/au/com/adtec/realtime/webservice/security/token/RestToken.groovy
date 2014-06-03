@@ -61,15 +61,28 @@ class RestToken {
     }
 
     def beforeDelete() {
-        /* Unlink Related Token Logs */
-        final String query = "update abstract_log set token_id=null where token_id=:tokenId"
-        final session  = sessionFactory.currentSession
-        final sqlQuery = session.createSQLQuery(query)
+        unlinkRelatedLogs()
+        unlinkMembers()
+        TokenRestriction.where { token == this }.deleteAll()
+    }
+
+    private void unlinkRelatedLogs() {
+        final String sql = "update abstract_log set token_id = null, token_value = :tokenValue where token_id = :tokenId"
+        final session = sessionFactory.currentSession
+        final sqlQuery = session.createSQLQuery(sql)
         sqlQuery.with {
+            setLong('tokenId', id)
+            setString('tokenValue', token)
+            executeUpdate()
+        }
+    }
+
+    private void unlinkMembers() {
+        final String sql = "delete from member_token_rest_token where rest_token_id = :tokenId"
+        final session = sessionFactory.currentSession
+        session.createSQLQuery(sql).with {
             setLong('tokenId', id)
             executeUpdate()
         }
-        /* Delete Token Restrictions */
-        TokenRestriction.where { token == this }.deleteAll()
     }
 }

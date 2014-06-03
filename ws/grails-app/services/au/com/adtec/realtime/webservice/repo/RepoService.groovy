@@ -98,15 +98,17 @@ class RepoService extends AbstractService {
         return fileData
     }
 
-    ImageTool loadImage(FileData file) {
+    ImageTool loadImage(FileData file, Map params = [:]) {
         ImageTool imageTool = new ImageTool()
         switch (file) {
             case { it instanceof VideoFileData && it.fileType == FileType.VIDEO }:
                 imageTool.load(file?.thumbData)
-                def alpha = grailsResourceLocator.findResourceForURI("images/play-button-overlay.png").file.absolutePath
-                imageTool.loadMask(alpha)
-                imageTool.applyMask()
-                imageTool.swapSource()
+                if (!params.containsKey("nooverlay")) {
+                    def alpha = grailsResourceLocator.findResourceForURI("images/play-button-overlay.png").file.absolutePath
+                    imageTool.loadMask(alpha)
+                    imageTool.applyMask()
+                    imageTool.swapSource()
+                }
                 break
             case { it.fileType == FileType.AUDIO }:
                 def audio = grailsResourceLocator.findResourceForURI("images/audio-icon.png").file.absolutePath
@@ -152,7 +154,7 @@ class RepoService extends AbstractService {
 
     private FileData resizeImage(FileData fileData, Map params) {
         def thumbnail = new FileData(contentType: "image/jpeg", filename: "$fileData.filename-thumb.jpg")
-        ImageTool imageTool = loadImage(fileData)
+        ImageTool imageTool = loadImage(fileData, params)
         def thumbSize = params?.thumb as int
         imageTool.thumbnail(thumbSize)
         thumbnail.data = imageTool.getBytes("JPEG")

@@ -45,8 +45,8 @@ class MessagingService extends AbstractService {
 
     Map<Integer, String> createMessage(Message message, String memberIdCsv, String fileIdCsv, int downloadCount, int readCount, int responseCount) {
         message.save()
-        def membersIdList = memberIdCsv.split(",").collect { it.toInteger() }
-        def fileIdList = fileIdCsv.split(",").collect { if (!it?.empty && it.number) { it.toLong() } }
+        def membersIdList = memberIdCsv.split(",").collect { if (!it?.empty && it.number) { it.toInteger() } } ?: []
+        def fileIdList = fileIdCsv.split(",").collect { if (!it?.empty && it.number) { it.toLong() } } ?: []
         def memberToken = tokenService.generateMemberMessageTokensWithFileAccess(message, fileIdList, membersIdList, readCount, responseCount, downloadCount)
         return memberToken
     }
