@@ -4,23 +4,26 @@ class UrlMappings {
         "/"(controller: 'home')
         "500"(view:'/error')
 
-        "/login/token"(view: "login/token")
-
         //region Repo Module
-        "/repo/web/$action?/$id?"(controller: "repo")
-        "/repo/api/$action?/$id?"(controller: "repo")
+        "/repo/web/info"(controller: "repo", action: "info")
 
+        "/repo/web"(controller: "repo", action: "index")
         "/repo/web/$token/$id-thumb-${width}x${height}.jpg"(controller: "repo", action: "thumb")
+        "/repo/web/$id-thumb-${width}x${height}.jpg"(controller: "repo", action: "thumb")
         "/repo/web/$token/$id-square-${thumb}.jpg"(controller: "repo", action: "square")
         "/repo/web/$token/$id-rect-${width}x${height}.jpg"(controller: "repo", action: "rect")
         "/repo/web/$token/$id-height-${height}.jpg"(controller: "repo", action: "height")
 
         "/repo/web/$token/view/$id"(controller: "repo", action: "view")
+        "/repo/web/view/$id"(controller: "repo", action: "view")
 
-        "/repo/web/test"(view: "repo/test")
+        "/repo/web/$action?/$id?"(controller: "repo")
+        "/repo/api/$action?/$id?"(controller: "repo")
         //endregion
 
         //region Token Management
+        "/login/token"(controller: "token", action: "tokenLoginForm")
+        "/token/web/login"(controller: "token", action: "login")
 
         "/token/web/"(controller: "token", action: "index")
         "/token/web/add/$type"(controller: "token", action: "addToken")

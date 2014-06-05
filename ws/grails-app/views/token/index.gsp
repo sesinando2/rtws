@@ -17,7 +17,7 @@
         <div class="message" role="status"><p>${flash.message}</p></div>
     </g:if>
 </div>
-<div id="list-restToken" class="grid_ 24 content scaffold-list" role="main">
+<div id="list-restToken" class="grid_ 24 content" role="main">
     <table>
         <thead>
         <tr>

@@ -1,4 +1,3 @@
-<%@ page import="au.com.adtec.realtime.webservice.repo.FileData" contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
     <meta name="layout" content="main">
@@ -8,84 +7,69 @@
 <body>
 <div id="page_heading" class="grid_24" role="page_heading">
     <h1 class="page_title">Repository</h1>
-    <p>This module allow users to upload and download files through HTTP request</p>
-    <p>To test the functionality, go to the <g:link uri="/repo/web/test">Test Page</g:link></p>
+    <div class="page_nav">
+        <g:link uri="/repo/web/info">API Info</g:link>
+    </div>
+    <g:if test="${flash.message}">
+        <div class="message" role="status"><p>${flash.message}</p></div>
+    </g:if>
 </div>
-<div id="repository" class="grid_24" role="main">
-    <div class="content">
-        <h3>Upload</h3>
-        <ul>
-            <li>URL: <code><g:createLink action="upload" absolute="true" /></code></li>
-            <li>Method: <code>POST</code></li>
-            <li>Header: <code>X-Auth-Token = [Token]</code></li>
-            <li>Request Body: <code>multipart/form-data</code></li>
-            <li>Response: JSON map of File ID and URL</li>
-        </ul>
-        <ul><i>Notes:</i>
-            <li><i>Token to be provided by the server</i></li>
-            <li><i>Token may have restrictions on how many files can be uploaded</i></li>
-        </ul>
-        <p>Sample Header: <pre>X-Auth-Token = ts7qh3171d8ckkv5qj4i5s594dhdj4mv</pre></p>
-        <p>Sample Response: <pre><pre>{base:"<g:createLink action="download" absolute="true" />", items:[2, 3]}</pre></pre></p>
+<div id="list-file" class="grid_ 24 content" role="main">
+    <table>
+        <thead>
+        <tr>
 
-        <h3>Download</h3>
-        <ul>
-            <li>URL: <code><g:createLink action="download" absolute="true"/>/[id]</code></li>
-            <li>Method: <code>GET</code></li>
-            <li>Header: <code>X-Auth-Token = [Token]</code></li>
-            <li>Response: Binary data of the file</li>
-        </ul>
-        <ul><i>Notes:</i>
-            <li><i>Token to be provided by the server</i></li>
-            <li><i>Token is to a particular file and may be restricted on how many times the resource can be accessed</i></li>
-        </ul>
-        <p>Sample Header: <pre>X-Auth-Token = ts7qh3171d8ckkv5qj4i5s594dhdj4mv</pre></p>
-        <p>Sample Request: <pre>GET: <g:createLink action="download" id="1" absolute="true"/></pre></p>
+            <g:sortableColumn property="id" title="ID" />
 
-        <h3>Thumbnail Functionality</h3>
-        <table>
-            <tbody>
-                <tr class="odd">
-                    <td><code>GET:<g:createLink uri="/repo/web/{token}/{id}-thumb-{width}x{height}.jpg" absolute="true"/></code></td>
-                    <td>
-                        <p><code>token</code>: Generated token to access the file</p>
-                        <p><code>id</code>: ID of the file to access</p>
-                        <p><code>width</code>: Maximum width</p>
-                        <p><code>height</code>: Maximum height</p>
-                    </td>
-                    <td>Create thumbnail for the file having a maximum width and height</td>
-                </tr>
-                <tr>
-                    <td><code>GET:<g:createLink uri="/repo/web/{token}/{id}-square-{thumb}.jpg" absolute="true"/></code></td>
-                    <td>
-                        <p><code>token</code>: Generated token to access the file</p>
-                        <p><code>id</code>: ID of the file to access</p>
-                        <p><code>thumb</code>: Length</p>
-                    </td>
-                    <td>Create thumbnail for the file cropped in a square with the provided length</td>
-                </tr>
-                <tr class="odd">
-                    <td><code>GET:<g:createLink uri="/repo/web/{token}/{id}-rect-{width}x{height}.jpg" absolute="true"/></code></td>
-                    <td>
-                        <p><code>token</code>: Generated token to access the file</p>
-                        <p><code>id</code>: ID of the file to access</p>
-                        <p><code>width</code>: Maximum width</p>
-                        <p><code>height</code>: Maximum height</p>
-                    </td>
-                    <td>Create thumbnail for the file cropped in a rectangle with the provided width and height</td>
-                </tr>
-                <tr>
-                    <td><code>GET:<g:createLink uri="/repo/web/{token}/{id}-height-{height}.jpg" absolute="true"/></code></td>
-                    <td>
-                        <p><code>token</code>: Generated token to access the file</p>
-                        <p><code>id</code>: ID of the file to access</p>
-                        <p><code>height</code>: height</p>
-                    </td>
-                    <td>Create thumbnail for the file resized to the specified height</td>
-                </tr>
-            </tbody>
-        </table>
+            <g:sortableColumn property="filename" title="File Name" />
+
+            <th>Type</th>
+
+            <g:sortableColumn property="dateCreated" title="Date Create" />
+
+            <sec:ifAnyGranted roles="ROLE_ADMIN, ROLE_REPO_ADMIN">
+            <th></th>
+            </sec:ifAnyGranted>
+
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <g:each in="${files}" status="i" var="file">
+            <tr class="${((i + 1) % 2) == 0 ? 'even' : 'odd'}">
+
+                <td class="center"><g:link controller="repo" action="view" id="${file.id}">${fieldValue(bean: file, field: "id")}</g:link></td>
+
+                <td><g:link controller="repo" action="view" id="${file.id}">${fieldValue(bean: file, field: "filename")}</g:link></td>
+
+                <td class="center">${fieldValue(bean: file, field: "fileType")}</td>
+
+                <td class="center">${fieldValue(bean: file, field: "dateCreated")}</td>
+
+                <sec:ifAnyGranted roles="ROLE_ADMIN, ROLE_REPO_ADMIN">
+                    <td class="center"><g:link action="delete" id="${file.id}">Delete</g:link></td>
+                </sec:ifAnyGranted>
+
+                <td class="center"><g:link action="download" id="${file.id}">Download</g:link></td>
+            </tr>
+        </g:each>
+        </tbody>
+    </table>
+    <div class="pagination">
+        <g:paginate total="${fileCount ?: 0}" />
     </div>
 </div>
+<div class="grid_24 section_heading" role="section_heading">
+    <h3 class="section_heading">Test Upload Form</h3>
+</div>
+<sec:ifAnyGranted roles="ROLE_ADMIN, ROLE_REPO_ADMIN">
+<div id="repo_test_upload_form_section" class="grid_ 24 content" role="section">
+    <g:uploadForm controller="repo" action="upload">
+        <div class="center">
+            <input type="file" name="file" id="file" multiple="true" /><input type="submit" />
+        </div>
+    </g:uploadForm>
+</div>
+</sec:ifAnyGranted>
 </body>
 </html>

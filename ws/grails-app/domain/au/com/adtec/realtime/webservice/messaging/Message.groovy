@@ -30,6 +30,18 @@ class Message {
     String toString() {
         return "[$id]\tMessage"
     }
+
+    String getMessageTypeText() {
+        switch (messageType) {
+            case MessageType.TEXT: return "Text"
+            case MessageType.PHOTO: return "Photo"
+            case MessageType.VIDEO: return "Video"
+            case MessageType.VOICE: return "Voice"
+            case MessageType.CANNED: return "Canned"
+            case MessageType.LOCATION: return "Location"
+            default: return "Mixed"
+        }
+    }
 }
 
 class MessageType {

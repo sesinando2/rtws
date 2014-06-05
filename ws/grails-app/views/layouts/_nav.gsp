@@ -7,11 +7,11 @@
             </div>
         </div>
     </li>
-    <sec:ifAnyGranted roles="ROLE_ADMIN, REPO_ADMIN">
+    <sec:ifAnyGranted roles="ROLE_REPO_READ">
     <li>
         <div class="outerContainer">
             <div class="innerContainer">
-                <adtec:link controller="repo" match="{url}*">Repository</adtec:link>
+                <adtec:link controller="repo" match="{url}.*">Repository</adtec:link>
             </div>
         </div>
     </li>
@@ -20,18 +20,20 @@
     <li>
         <div class="outerContainer">
             <div class="innerContainer">
-                <adtec:link controller="token" match="{url}*">Token Management</adtec:link>
+                <adtec:link controller="token" match="{url}.*">Token Management</adtec:link>
             </div>
         </div>
     </li>
     </sec:ifAnyGranted>
+    <sec:ifAnyGranted roles="ROLE_MESSAGING_USER">
     <li>
         <div class="outerContainer">
             <div class="innerContainer">
-                <adtec:link controller="message" match="{url}*">Messaging</adtec:link>
+                <adtec:link controller="message" match="{url}.*">Messaging</adtec:link>
             </div>
         </div>
     </li>
+    </sec:ifAnyGranted>
     <li>
         <div class="outerContainer">
             <div class="innerContainer">

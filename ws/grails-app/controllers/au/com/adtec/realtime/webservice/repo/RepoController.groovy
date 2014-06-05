@@ -19,10 +19,14 @@ class RepoController extends AbstractController {
 
     //region Actions
     @Secured(["ROLE_REPO_ADMIN"])
-    def index() { }
+    def info() {}
 
-    @Secured(["ROLE_REPO_ADMIN"])
-    def list() { render FileData.list().collect { it.id } as JSON }
+    @Secured(["ROLE_REPO_READ"])
+    def index(Integer max) {
+        params.max = Math.min(max ?: 10, 100)
+        def files = repoService.getFilesForUser(params)
+        [files: files, fileCount: repoService.countForUser()]
+    }
 
     @Secured(["ROLE_REPO_UPLOAD"])
     def upload() {
@@ -71,14 +75,14 @@ class RepoController extends AbstractController {
 
     @Secured(["permitAll"])
     def thumb(String token, int id, int width, int height) {
-        RestToken restToken = RestToken.findByToken(token);
-        if (!(restToken && restToken.isAllowedForFile(idAsArray))) {
+        RestToken restToken = RestToken.findByToken(token ?: this.token);
+        if (!repoService.isAdmin && !(restToken && restToken.isAllowedForFile(idAsArray))) {
             render(status: 401, text: "Token not allowed for file with id/s: $params.id")
             return
         }
-        FileData file = repoService.getFile(id, restToken, [:])
+        FileData file = restToken ? repoService.getFile(id, restToken, [:]) : FileData.get(id)
         doActionForFile(file) {
-            if (token && !restToken?.isValid) restToken.delete()
+            if (restToken && !restToken?.isValid) restToken.delete()
             logThumbnail(id, restToken)
             ImageTool imageTool = repoService.loadImage(file)
             imageTool.thumbnailSpecial(width, height, 1, 1)
@@ -173,14 +177,13 @@ class RepoController extends AbstractController {
     }
 
     @Secured(["ROLE_REPO_ADMIN"])
-    def delete(int id) {
-        FileData file = FileData.get(id);
+    def delete(FileData file) {
+        file.delete()
         doActionForFile(file) {
-            def response = [success: true];
             try { file.delete() } catch (all) {
-                response = [success: false, message: "An error occurred while trying to delete file with id '$id'"]
+                flash.message = "An error occurred while trying to delete file with id '${params?.id}'"
             }
-            render response as JSON
+            redirect(action: "index")
         }
     }
 
@@ -197,8 +200,9 @@ class RepoController extends AbstractController {
             render(view: "view-not-allowed")
             return false
         }
-        FileData file = repoService.getFile(id, restToken, [:])
-        render(view: "view", model: [token: token, file: file])
+        FileData file = restToken ? repoService.getFile(id, restToken, [:]) : FileData.get(id)
+        def thumb = token ? "/repo/web/${token}/${file.id}-thumb-450x450.jpg" : "/repo/web/${file.id}-thumb-450x450.jpg"
+        render(view: "view", model: [token: token, file: file, thumb: thumb])
     }
     //endregion
 

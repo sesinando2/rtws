@@ -5,6 +5,8 @@ import au.com.adtec.realtime.webservice.security.token.restriction.DownloadToken
 import au.com.adtec.realtime.webservice.security.token.RestToken
 import au.com.adtec.realtime.webservice.security.Role
 import au.com.adtec.realtime.webservice.security.User
+import com.odobo.grails.plugin.springsecurity.rest.RestAuthenticationToken
+import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.transaction.Transactional
 import org.grails.plugins.imagetools.ImageTool
 import org.springframework.core.io.Resource
@@ -104,7 +106,7 @@ class RepoService extends AbstractService {
             case { it instanceof VideoFileData && it.fileType == FileType.VIDEO }:
                 imageTool.load(file?.thumbData)
                 if (!params.containsKey("nooverlay")) {
-                    def alpha = grailsResourceLocator.findResourceForURI("images/play-button-overlay.png").file.absolutePath
+                    String alpha = grailsResourceLocator.findResourceForURI("images/play-button-overlay.png").file.absolutePath
                     imageTool.loadMask(alpha)
                     imageTool.applyMask()
                     imageTool.swapSource()
@@ -114,7 +116,9 @@ class RepoService extends AbstractService {
                 def audio = grailsResourceLocator.findResourceForURI("images/audio-icon.png").file.absolutePath
                 imageTool.load(audio)
                 break
-            default: imageTool.load(file.data)
+            default:
+                String alpha = grailsResourceLocator.findResourceForURI("images/file-icon.png").file.absolutePath
+                imageTool.load(alpha)
         }
         return imageTool
     }
@@ -131,8 +135,31 @@ class RepoService extends AbstractService {
         return fileList
     }
 
+    List<FileData> getFilesForUser(Map params = [:]) {
+        if (isAdmin) {
+            return FileData.list(params)
+        } else if (springSecurityService.authentication instanceof RestAuthenticationToken) {
+            def tokenValue = (springSecurityService.authentication as RestAuthenticationToken).tokenValue
+            return getFilesFromToken(tokenValue)
+        }
+        return []
+    }
+
+    Integer countForUser() {
+        if (isAdmin) {
+            return FileData.count()
+        } else if (springSecurityService.authentication instanceof RestAuthenticationToken) {
+            def tokenValue = (springSecurityService.authentication as RestAuthenticationToken).tokenValue
+            return DownloadTokenRestriction.where { token.token == tokenValue }.count()
+        }
+    }
+
     Resource getImageResource(String filePath) {
         return grailsResourceLocator.findResourceForURI(filePath)
+    }
+
+    Boolean getIsAdmin() {
+        SpringSecurityUtils.ifAnyGranted("ROLE_ADMIN, ROLE_REPO_ADMIN")
     }
 
     void logDownload(FileData fileData, RestToken restToken) {
@@ -145,11 +172,6 @@ class RepoService extends AbstractService {
         if (restToken?.isValid) {
             createFileLog(restToken, fileData, FileDataAction.THUMBNAIL)
         }
-    }
-
-    boolean getIsAdmin() {
-        def authorities = currentUser?.authorities.collect { it.authority }
-        return authorities.contains('ROLE_ADMIN') || authorities.contains('ROLE_REPO_ADMIN')
     }
 
     private FileData resizeImage(FileData fileData, Map params) {
@@ -166,11 +188,22 @@ class RepoService extends AbstractService {
             if (restToken.isValid) {
                 def restrictions = DownloadTokenRestriction.where { token == restToken && fileData.id == id }.list()
                 if (!restrictions.empty) return restrictions.first().fileData
-            } else {
-                restToken.delete()
             }
         }
         return null
+    }
+
+    private List<FileData> getFilesFromToken(String tokenValue, Map params = [:]) {
+        return getFilesFromToken(RestToken.findByToken(tokenValue), params)
+    }
+
+    private List<FileData> getFilesFromToken(RestToken restToken, Map params = [:]) {
+        if (restToken) {
+            if (restToken.isValid) {
+                def restrictions = DownloadTokenRestriction.where { token == restToken }.list(params)
+                return restrictions.collect { it.fileData }
+            }
+        }
     }
 
     private void createUploadLog(FileData fileData, RestToken restToken) {

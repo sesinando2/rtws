@@ -8,6 +8,7 @@ import au.com.adtec.realtime.webservice.security.token.RestToken
 import au.com.adtec.realtime.webservice.security.Role
 import au.com.adtec.realtime.webservice.security.TokenService
 import au.com.adtec.realtime.webservice.security.User
+import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.transaction.Transactional
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -41,6 +42,51 @@ class MessagingService extends AbstractService {
         Users.MESSAGING_ADMIN = createUser(USER_MESSAGING_ADMIN, "admin:)", Roles.MESSAGING_ADMIN)
         Users.MESSAGING_USER = createUser(USER_MESSAGING_USER, "admin:)", Roles.MESSAGING_USER)
         Users.MESSAGING_REPO_READ_USER = RepoService.Users.MESSAGING_REPO_READ_USER = createUser(USER_MESSAGING_REPO_READ, "admin:)", Roles.MESSAGING_USER, RepoService.Roles.REPO_READ)
+    }
+
+    List<Message> getMessagesForUser(Map params = [:]) {
+        if (isAdmin) {
+            return Message.list(params)
+        } else {
+            return getMessagesFromLoggedInToken(params)
+        }
+    }
+
+    Integer countMessagesForUser() {
+        if (isAdmin) {
+            return Message.count()
+        } else {
+            return countMessagesFromLoggedInToken()
+        }
+    }
+
+    private List<Message> getMessagesFromLoggedInToken(Map params = [:]) {
+        if (!isAdmin && token) {
+            return getMessagesFromToken(token, params)
+        }
+        return []
+    }
+
+    private Integer countMessagesFromLoggedInToken() {
+        if (!isAdmin && token) {
+            return countMessagesFromToken()
+        }
+        return 0
+    }
+
+    private List<Message> getMessagesFromToken(String tokenValue, Map params = [:]) {
+        if (token) {
+            def restrictions = MessageTokenRestriction.where { token { token == tokenValue } }.list(params)
+            return restrictions.collect { it.message }
+        }
+        return []
+    }
+
+    private Integer countMessagesFromToken(String tokenValue) {
+        if (token) {
+            return MessageTokenRestriction.where { token { token == tokenValue } }.count()
+        }
+        return 0
     }
 
     Map<Integer, String> createMessage(Message message, String memberIdCsv, String fileIdCsv, int downloadCount, int readCount, int responseCount) {
@@ -97,8 +143,7 @@ class MessagingService extends AbstractService {
     }
 
     boolean getIsAdmin() {
-        def authorities = currentUser?.authorities?.collect { it.authority }
-        return authorities && (authorities?.contains('ROLE_ADMIN') || authorities?.contains('ROLE_MESSAGING_ADMIN'))
+        return SpringSecurityUtils.ifAnyGranted("ROLE_ADMIN, ROLE_MESSAGING_ADMIN")
     }
 
     private CannedMessage getCannedMessageFromToken(RestToken restToken, int id) {

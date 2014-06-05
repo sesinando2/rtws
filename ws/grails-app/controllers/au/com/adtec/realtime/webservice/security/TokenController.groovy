@@ -12,6 +12,7 @@ import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache
 
 class TokenController {
 
@@ -19,6 +20,8 @@ class TokenController {
     TokenService tokenService
     RepoService repoService
     MessagingService messagingService
+    def springSecurityService
+    HttpSessionRequestCache requestCache
 
     RestAuthenticationProvider restAuthenticationProvider
 
@@ -27,7 +30,16 @@ class TokenController {
     def beforeInterceptor = [action: this.&validateAccess, only:['request', 'requestTracked']]
 
     @Secured(["permitAll"])
-    def login(String token) {
+    def tokenLoginForm() {
+        println "adsasdasd" + requestCache
+        if (springSecurityService.isLoggedIn()) {
+            redirect(uri: "/login/auth")
+        }
+    }
+
+    @Secured(["permitAll"])
+    def login(String token, String url) {
+        println response.getHeader("location")
         if (token) {
             try {
                 log.debug "Trying to authenticate the token"
@@ -38,9 +50,12 @@ class TokenController {
                     log.debug "Token authenticated. Storing the authentication result in the security context"
                     log.debug "Authentication result: ${authenticationResult}"
                     SecurityContextHolder.context.setAuthentication(authenticationResult)
-
                 }
-                redirect(controller: "home")
+                if (url) {
+                    redirect(url: url)
+                } else {
+                    redirect(uri: "/")
+                }
                 return
             } catch (AuthenticationException ae) {
                 log.debug "Authentication failed: ${ae.message}"

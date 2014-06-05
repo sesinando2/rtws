@@ -10,8 +10,14 @@ class MessageController extends AbstractController {
     MessagingService messagingService
 
     @Secured(["ROLE_MESSAGING_USER"])
-    def list() {
-        respond Message.list()
+    def index(Integer max) {
+        params.max = Math.min(max ?: 10, 100)
+        [messages: messagingService.getMessagesForUser(params), messageCount: messagingService.countMessagesForUser()]
+    }
+
+    @Secured(["ROLE_MESSAGING_USER"])
+    def view(Message message) {
+
     }
 
     @Secured(["ROLE_MESSAGING_ADMIN"])
