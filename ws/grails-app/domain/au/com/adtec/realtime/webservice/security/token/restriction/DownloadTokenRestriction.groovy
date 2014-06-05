@@ -12,11 +12,19 @@ class DownloadTokenRestriction extends TokenRestriction {
         numberOfAccess min: 0, max: 1024
     }
 
-    static transients = ['isRestricted']
+    static transients = ['isRestricted', 'restrictedResource', 'restrictionDetails']
 
     boolean getIsRestricted() {
         if (numberOfAccess == 0) return false
         def logs = FileDataLog.findAllByTokenAndFileData(token, fileData)
         return logs.size() >= numberOfAccess
+    }
+
+    def getRestrictedResource() {
+        return fileData
+    }
+
+    def getRestrictionDetails() {
+        "Number of Downloads: $numberOfAccess"
     }
 }

@@ -7,6 +7,19 @@ a {
     color: #eeeeee;
 }
 
+.hidden {
+    display: none;
+}
+
+/* Absolute Center */
+.absolute_center {
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    text-align: center;
+}
+/* End Absolute Center */
+
 /* Main Navigation Menu */
 .navigation ul {
     list-style-type: none;
@@ -68,47 +81,44 @@ table tbody tr.odd {
 /* End Table Styling */
 
 /* Web Forms */
-form label, form input, form p {
-    width: 45%;
-    float: right;
-    margin-bottom: 0;
-}
-
-form label, form p {
-    line-height: 30px;
-}
-
-form p {
-    text-align: left;
-}
-
-form label {
-    text-align: right;
-    margin-right: 10px;
-}
-
-form input {
-    padding: 5px;
-}
-
 form > div {
-    margin-bottom: 10px;
-    float: right;
-    width: 100%;
+    margin: 5px 0;
+}
+
+form > div > div {
+    float: left;
+    text-align: left;
+    clear: right;
+    height: 30px;
+}
+
+form > div > div:first-child, form > div > div.label {
     text-align: right;
+    clear: left;
+    margin-right: 5px;
+    width: 45%;
 }
 
-form input[type=submit] {
-    float: right;
-    width: inherit;
-    height: 30px;
-    clear: both;
+form > div > div > * {
+    max-width: 100%;
 }
 
-form input[type=checkbox] {
-    width: inherit;
-    height: 30px;
-    margin: 0;
+form > div > div {
+    width: auto;
+    max-width: 45%;
+}
+
+form > div.submit > div {
+    text-align: right;
+    width: 100%;
+}
+
+form > div > div > label, form > div > div > p {
+    line-height: 21px;
+}
+
+input[type=submit] {
+    color: #000000;
 }
 /* End Web Froms */
 
@@ -116,6 +126,7 @@ form input[type=checkbox] {
 #page_heading {
     margin-top: 5%;
     text-align: center;
+    margin-bottom: 20px;
 }
 
 #page_heading h1, .section_heading h1
@@ -141,6 +152,20 @@ form input[type=checkbox] {
 #page_header h5, .section_heading h5 { font-size: 0.5em; }
 #page_header h6, .section_heading h6 { font-size: 0em; }
 
+.section_heading {
+    margin: 15px 0;
+}
+
+#page_heading .page_nav a {
+    margin: 0 5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #FEB02A;
+}
+
+#page_heading .page_nav a:hover {
+    text-decoration: underline;
+}
 /* End Generic Page */
 
 /* Login Page */
@@ -160,36 +185,28 @@ form input[type=checkbox] {
 }
 
     /* Login Form */
-    #loginForm, .login_form_title {
+    #loginForm, #loginFormToken, .login_form_title {
         max-width: 300px;
         margin: auto;
         text-align: center;
     }
 
-    #loginForm {
-        position: relative;
-        left: -40px;
+    #loginForm > div > div, #loginFormToken > div > div {
+        max-width: inherit;
     }
 
-    #loginForm div.remember_me_container {
-        float: right;
-        width: auto;
+
+    #loginForm .buttons_and_links div:first-child, #loginForm .buttons_and_links div.label {
+        width: 23%;
     }
 
-    #loginForm div.remember_me_container input[type=checkbox] {
-        width: 12px;
+    #loginFormToken .buttons_and_links div:first-child, #loginFormToken .buttons_and_links div.label {
+        width: 12%;
     }
 
-    #loginForm label[for=remember_me] {
-        text-align: left;
-        margin-left: 5px;
-        margin-right: 0;
-        width: auto;
-    }
-
-    #loginForm #buttons_and_links input[type=submit] {
-        float: right;
-        width: auto;
+    #loginForm > div > div:first-child, #loginForm > div > div.label
+    #loginFormToken > div > div:first-child, #loginFormToken > div > div.label {
+        width: 36%
     }
     /* End Login Form */
 /* End Login Page */
@@ -214,15 +231,6 @@ form input[type=checkbox] {
     /* End Test Page */
 /* End Repository Page */
 
-/* Absolute Center */
-.absolute_center {
-    margin: auto;
-    position: absolute;
-    top: 0; left: 0; bottom: 0; right: 0;
-    text-align: center;
-}
-/* End Absolute Center */
-
 /* Default Layout */
 #default_container {
     max-width: 500px;
@@ -244,6 +252,9 @@ div.pagination {
 div.pagination a, div.pagination span {
     margin: 0 10px;
     text-decoration: none;
+}
+
+div.pagination a {
     color: #666666;
 }
 /* End Pagination */
@@ -251,16 +262,17 @@ div.pagination a, div.pagination span {
 /* Token Pages */
     /* View Page */
     div.token_view form {
-        max-width: 400px;
         margin: auto;
     }
 
-    div.token_view form label {
-        width: 100px;
+    form#add_token_restriction {
+        width: 500px;
     }
 
-    div.token_view form p {
-        width: 250px;
+    form#add_token_restriction > div > div:first-child,
+    form#add_token_restriction > div > div.label {
+
+        width: 37%
     }
     /* End View Page */
 /* End Token Pages */

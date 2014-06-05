@@ -2,6 +2,7 @@ package au.com.adtec.realtime.webservice.security
 
 import au.com.adtec.realtime.webservice.messaging.Message
 import au.com.adtec.realtime.webservice.messaging.MessagingService
+import au.com.adtec.realtime.webservice.repo.FileData
 import au.com.adtec.realtime.webservice.repo.RepoService
 import au.com.adtec.realtime.webservice.security.token.RestToken
 import au.com.adtec.realtime.webservice.security.token.restriction.TokenRestriction
@@ -58,10 +59,99 @@ class TokenController {
     }
 
     @Secured(["ROLE_ADMIN"])
-    def view(RestToken restTokenInstance) {
-        def roles = User.findByUsername(restTokenInstance.login).authorities.collect { it.authority }.join(", ")
-        def restrictions = TokenRestriction.findAllByToken(restTokenInstance)
-        respond restTokenInstance, model: [roles: roles, restrictions: restrictions]
+    def addToken(String type) {
+        def tokenValue
+        switch (type) {
+            case "upload":
+                tokenValue = tokenService.generateToken(RepoService.Users.REPO_UPLOAD)
+                break
+            case "download":
+                tokenValue = tokenService.generateToken(RepoService.Users.REPO_READ)
+                break
+            case "tracked":
+                tokenValue = tokenService.generateToken(MessagingService.Users.MESSAGING_REPO_READ_USER)
+                break
+            case "message":
+                tokenValue = tokenService.generateToken(MessagingService.Users.MESSAGING_USER)
+                break
+        }
+        def restToken = RestToken.findByToken(tokenValue)
+        redirect(action: "view", id: restToken.id)
+    }
+
+    @Secured(["ROLE_ADMIN"])
+    def view(RestToken restToken) {
+        if (restToken) {
+            def roles = User.findByUsername(restToken?.login).authorities.collect { it.authority }.join(", ")
+            def restrictions = TokenRestriction.findAllByToken(restToken)
+            respond restToken, model: [roles: roles, restrictions: restrictions]
+            return
+        } else {
+            flash.message = "Cannot find Token: $params?.id"
+            redirect(action: "index")
+        }
+    }
+
+    @Secured(["ROLE_ADMIN"])
+    def addTokenRestriction(RestToken token, String type) {
+        withForm {
+            switch (type) {
+                case "UPLOAD":
+                    addUploadRestriction(token)
+                    break
+                case "DOWNLOAD":
+                    addDownloadRestriction(token)
+                    break
+                case "MESSAGE":
+                    addMessageRestriction(token)
+                    break
+            }
+        }
+        redirect(action: "view", id: token.id)
+    }
+
+    //region Add Token Restriction Helper Methods
+    private void addUploadRestriction(RestToken token) {
+        if (token.login == RepoService.USER_REPO_UPLOAD) {
+            int fileCount = params?.fileCount ?: 0
+            tokenService.createUploadRestriction(token.token, fileCount)
+        }
+    }
+
+    private void addDownloadRestriction(RestToken token) {
+        if (token.login == RepoService.USER_REPO_UPLOAD ||
+            token.login == RepoService.USER_REPO_READ   ||
+            token.login == MessagingService.USER_MESSAGING_REPO_READ) {
+
+            int downloadCount = params?.downloadCount ?: 0
+            def file = FileData.get(params?.file as Serializable)
+            if (file) {
+                tokenService.createDownloadRestriction(token.token, file, downloadCount)
+            }
+        }
+    }
+
+    private void addMessageRestriction(RestToken token) {
+        if (token.login == MessagingService.USER_MESSAGING_USER ||
+            token.login == MessagingService.USER_MESSAGING_REPO_READ) {
+
+            int readCount = params?.readCount ?: 0
+            int responseCount = params?.responseCount ?: 0
+            def message = Message.get(params?.message as Serializable)
+            println message
+            if (message) {
+                tokenService.createMessageRestriction(message, token.token, readCount, responseCount)
+            }
+        }
+    }
+    //endregion
+
+    @Secured(["ROLE_ADMIN"])
+    def deleteTokenRestriction(TokenRestriction restriction) {
+        if (restriction) {
+            restriction.delete()
+        }
+        redirect(action: "view", id: params?.token)
     }
 
     @Secured(["ROLE_ADMIN"])
@@ -79,9 +169,9 @@ class TokenController {
     }
 
     @Secured(["ROLE_ADMIN"])
-    def delete(int id) {
-        RestToken.get(id)?.delete()
-        render([success: true] as JSON)
+    def delete(RestToken restToken) {
+        restToken?.delete()
+        redirect(action: "index")
     }
 
     @Secured(["ROLE_ADMIN"])
@@ -163,6 +253,7 @@ class TokenController {
         }
     }
 
+    @Secured(["permitAll"])
     private validateAccess() {
         if (grailsApplication.config.au.com.adtec.security.localTokenGenerationOnly && request.remoteAddr != "127.0.0.1") {
             render(status: 401)

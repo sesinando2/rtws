@@ -8,11 +8,15 @@ class UploadTokenRestriction extends TokenRestriction {
 
     static constraints = {}
 
-    static transients = ['isRestricted']
+    static transients = ['isRestricted', 'restrictionDetails']
 
     boolean getIsRestricted() {
         if (numberOfFiles == 0) return false
         def logs = FileDataLog.findAllByToken(token)
         return logs.size() >= numberOfFiles
+    }
+
+    def getRestrictionDetails() {
+        "Number of Files: $numberOfFiles"
     }
 }

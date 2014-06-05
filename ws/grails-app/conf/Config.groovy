@@ -171,6 +171,18 @@ grails.plugin.springsecurity.filterChain.chainMap = [
     /* Form Authentication */
     '/**': 'JOINED_FILTERS,-basicAuthenticationFilter,-basicExceptionTranslationFilter,-restLogoutFilter,-restAuthenticationFilter,-restTokenValidationFilter'
 ]
+grails.plugin.springsecurity.roleHierarchy = '''
+   ROLE_ADMIN > ROLE_REPO_ADMIN
+   ROLE_ADMIN > ROLE_REPO_UPLOAD
+   ROLE_ADMIN > ROLE_REPO_READ
+   ROLE_REPO_ADMIN > ROLE_REPO_UPLOAD
+   ROLE_REPO_ADMIN > ROLE_REPO_READ
+   ROLE_REPO_UPLOAD > ROLE_REPO_READ
+
+   ROLE_ADMIN > ROLE_MESSAGING_ADMIN
+   ROLE_ADMIN > ROLE_MESSAGING_USER
+   ROLE_MESSAGING_ADMIN > ROLE_MESSAGING_USER
+'''
 
 // Spring Security Rest Configurations
 grails.plugin.springsecurity.rest.login.failureStatusCode = 401

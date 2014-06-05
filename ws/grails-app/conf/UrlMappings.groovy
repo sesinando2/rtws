@@ -1,12 +1,6 @@
 class UrlMappings {
 
 	static mappings = {
-        "/$controller/$action?/$id?(.$format)?"{
-            constraints {
-                // apply constraints here
-            }
-        }
-
         "/"(controller: 'home')
         "500"(view:'/error')
 
@@ -27,14 +21,17 @@ class UrlMappings {
         //endregion
 
         //region Token Management
-        "/token/web/$action?/$id?"(controller: "token")
-        "/token/api/$action?/$id?"(controller: "token")
 
         "/token/web/"(controller: "token", action: "index")
+        "/token/web/add/$type"(controller: "token", action: "addToken")
         "/token/web/$id"(controller: "token", action: "view")
+        "/token/web/$id/restriction"(controller: "token", action: "addTokenRestriction")
 
         "/token/api/request/tracked/download"(controller: "token", action: "requestTrackedDownloadToken")
         "/token/tracking/${token}/${tokenAction}.jpg"(controller: "token", action: "trackToken")
+
+        "/token/web/$action?/$id?"(controller: "token")
+        "/token/api/$action?/$id?"(controller: "token")
         //endregion
 
         //region Messaging Module
@@ -47,5 +44,11 @@ class UrlMappings {
         "/message/web/$action?/$id?"(controller: "message")
         "/message/api/$action?/$id?"(controller: "message")
         //endregion
+
+        "/$controller/$action?/$id?(.$format)?"{
+            constraints {
+                // apply constraints here
+            }
+        }
 	}
 }

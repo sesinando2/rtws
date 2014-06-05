@@ -9,4 +9,8 @@ class ImageFileData extends FileData {
         timestamp blank: true, nullable: true
         location blank: true, nullable: true
     }
+
+    String toString() {
+        "[$id]\tImage : $filename"
+    }
 }

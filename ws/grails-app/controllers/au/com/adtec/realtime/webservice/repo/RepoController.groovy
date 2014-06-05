@@ -18,13 +18,13 @@ class RepoController extends AbstractController {
     def tokenService
 
     //region Actions
-    @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN"])
+    @Secured(["ROLE_REPO_ADMIN"])
     def index() { }
 
-    @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN"])
+    @Secured(["ROLE_REPO_ADMIN"])
     def list() { render FileData.list().collect { it.id } as JSON }
 
-    @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN", "ROLE_REPO_UPLOAD"])
+    @Secured(["ROLE_REPO_UPLOAD"])
     def upload() {
         if (request instanceof MultipartHttpServletRequest) {
             RestToken restToken = RestToken.findByToken(token)
@@ -52,7 +52,7 @@ class RepoController extends AbstractController {
         render(stauts: 404)
     }
 
-    @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN", "ROLE_REPO_READ"])
+    @Secured(["ROLE_REPO_READ"])
     def download(int id) {
         RestToken token = RestToken.findByToken(token)
         if (token && !token?.isValid) {
@@ -162,7 +162,7 @@ class RepoController extends AbstractController {
         }
     }
 
-    @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN", "ROLE_REPO_READ"])
+    @Secured(["ROLE_REPO_ADMIN"])
     def details() {
         def details = [:]
         for (def id : idAsArray) {
@@ -172,7 +172,7 @@ class RepoController extends AbstractController {
         render(details as JSON)
     }
 
-    @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN"])
+    @Secured(["ROLE_REPO_ADMIN"])
     def delete(int id) {
         FileData file = FileData.get(id);
         doActionForFile(file) {
@@ -184,7 +184,7 @@ class RepoController extends AbstractController {
         }
     }
 
-    @Secured(["ROLE_ADMIN", "ROLE_REPO_ADMIN"])
+    @Secured(["ROLE_REPO_ADMIN"])
     def purge() {
         FileData.deleteAll(FileData.all)
         redirect(action: "index")
@@ -193,6 +193,10 @@ class RepoController extends AbstractController {
     @Secured(["permitAll"])
     def view(String token, Integer id) {
         RestToken restToken = RestToken.findByToken(token);
+        if (!repoService.isAdmin && !(restToken && restToken.isAllowedForFile(id))) {
+            render(view: "view-not-allowed")
+            return false
+        }
         FileData file = repoService.getFile(id, restToken, [:])
         render(view: "view", model: [token: token, file: file])
     }

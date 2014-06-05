@@ -6,7 +6,11 @@ class TokenRestriction {
 
     static belongsTo = [ token:RestToken ]
 
-    static transients = ['isRestricted']
+    static transients = ['isRestricted', 'restrictedResource', 'restrictionDetails', 'restrictionDetails']
 
     boolean getIsRestricted() { false }
+
+    def getRestrictedResource() { }
+
+    def getRestrictionDetails() { }
 }

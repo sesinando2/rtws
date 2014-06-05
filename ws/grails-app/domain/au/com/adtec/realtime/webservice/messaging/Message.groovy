@@ -1,6 +1,8 @@
 package au.com.adtec.realtime.webservice.messaging
 
 import au.com.adtec.realtime.webservice.security.token.restriction.MessageTokenRestriction
+import grails.converters.JSON
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 class Message {
 
@@ -21,7 +23,13 @@ class Message {
 
     static mappedBy = [restrictions: "message"]
 
+    static transients = ['messageText']
+
     boolean hasValidToken() { MessageTokenRestriction.findAllByMessage(this).find { !it.isRestricted } }
+
+    String toString() {
+        return "[$id]\tMessage"
+    }
 }
 
 class MessageType {

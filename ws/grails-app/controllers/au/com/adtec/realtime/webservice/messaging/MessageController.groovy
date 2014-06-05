@@ -9,12 +9,12 @@ class MessageController extends AbstractController {
 
     MessagingService messagingService
 
-    @Secured(["ROLE_ADMIN", "ROLE_MESSAGING_ADMIN", "ROLE_MESSAGING_USER"])
+    @Secured(["ROLE_MESSAGING_USER"])
     def list() {
         respond Message.list()
     }
 
-    @Secured(["ROLE_ADMIN", "ROLE_MESSAGING_ADMIN"])
+    @Secured(["ROLE_MESSAGING_ADMIN"])
     def addCanned(CannedMessage cannedMessage, String memberIdCsv, Integer accessCount, Integer responseCount, String response) {
         accessCount = accessCount ?: 1
         responseCount = responseCount ?: 1

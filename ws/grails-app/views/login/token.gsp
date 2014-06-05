@@ -5,15 +5,21 @@
   <title></title>
 </head>
 <body>
-    <form action='<g:createLink controller="token" action="login" />' method='POST' id='loginForm'>
+    <form action='<g:createLink controller="token" action="login" />' method='POST' id='loginFormToken'>
         <div>
-            <input type='text' name='token' id='token'/>
-            <label for='token'>Token:</label>
+            <div class="label">
+                <label for='token'>Token:</label>
+            </div>
+            <div>
+                <input type='text' name='token' id='token'/>
+            </div>
         </div>
-
-        <div id="buttons_and_links">
-            <g:link uri="/login/auth">Login using an account</g:link>
-            <input type='submit' id="submit" value='${message(code: "springSecurity.login.button")}'/>
+        <div class="buttons_and_links">
+            <div class="label"></div>
+            <div>
+                <g:link uri="/login/auth">Login using an account</g:link>
+                <input type='submit' id="submit" value='${message(code: "springSecurity.login.button")}'/>
+            </div>
         </div>
     </form>
 </body>

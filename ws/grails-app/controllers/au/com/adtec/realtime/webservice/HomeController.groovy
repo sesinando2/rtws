@@ -5,7 +5,7 @@ import grails.plugin.springsecurity.SpringSecurityUtils
 class HomeController {
 
     def index() {
-        if (SpringSecurityUtils.ifAnyGranted("ROLE_ADMIN, ROLE_REPO_ADMIN")) {
+        if (SpringSecurityUtils.ifAnyGranted("ROLE_ADMIN, ROLE_REPO_ADMIN, ROLE_MESSAGING_ADMIN")) {
             render(view: 'admin')
         } else {
             render(view: 'user')

@@ -46,6 +46,10 @@ class FileData {
         FileDataLog.where { fileData == this }.deleteAll()
         DownloadTokenRestriction.where { fileData == this }.deleteAll()
     }
+
+    String toString() {
+        "[$id]\tFile: $filename"
+    }
 }
 
 enum FileType { IMAGE, VIDEO, AUDIO, OTHER }

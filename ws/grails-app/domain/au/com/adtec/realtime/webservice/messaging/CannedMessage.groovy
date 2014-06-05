@@ -7,4 +7,8 @@ class CannedMessage extends Message {
     static hasMany = [responses: CannedMessageResponse]
 
     static constraints = {}
+
+    public String toString() {
+        return "[$id]\tCanned Message"
+    }
 }

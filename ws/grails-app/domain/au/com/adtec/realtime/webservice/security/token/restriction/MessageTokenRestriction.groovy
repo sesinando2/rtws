@@ -15,7 +15,7 @@ class MessageTokenRestriction extends TokenRestriction {
         numberOfResponse min: 0, max: 1024
     }
 
-    static transients = ['isRestricted']
+    static transients = ['isRestricted', 'restrictedResource']
 
     boolean getIsRestricted() {
         def isRestricted = false
@@ -31,5 +31,13 @@ class MessageTokenRestriction extends TokenRestriction {
         }
 
         return isRestricted
+    }
+
+    def getRestrictedResource() {
+        return message
+    }
+
+    def getRestrictionDetails() {
+        "Number of Read Access: $numberOfAccess, Number of Response: $numberOfResponse"
     }
 }

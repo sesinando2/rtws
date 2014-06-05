@@ -7,6 +7,12 @@
 <body>
 <div id="page_heading" class="grid_24" role="page_heading">
     <h1 class="page_title">Token List</h1>
+    <div class="page_nav">
+        <g:link action="addToken" params="[type: 'upload']">Generate Upload Token</g:link>
+        <g:link action="addToken" params="[type: 'download']">Generate Download Token</g:link>
+        <g:link action="addToken" params="[type: 'tracked']">Generate Tracked Download Token</g:link>
+        <g:link action="addToken" params="[type: 'message']">Generate Messaging Token</g:link>
+    </div>
 </div>
 <div id="list-restToken" class="grid_ 24 content scaffold-list" role="main">
     <g:if test="${flash.message}">
