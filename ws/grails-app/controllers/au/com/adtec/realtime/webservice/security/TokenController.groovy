@@ -60,23 +60,29 @@ class TokenController {
 
     @Secured(["ROLE_ADMIN"])
     def addToken(String type) {
-        def tokenValue
-        switch (type) {
-            case "upload":
-                tokenValue = tokenService.generateToken(RepoService.Users.REPO_UPLOAD)
-                break
-            case "download":
-                tokenValue = tokenService.generateToken(RepoService.Users.REPO_READ)
-                break
-            case "tracked":
-                tokenValue = tokenService.generateToken(MessagingService.Users.MESSAGING_REPO_READ_USER)
-                break
-            case "message":
-                tokenValue = tokenService.generateToken(MessagingService.Users.MESSAGING_USER)
-                break
+        try {
+            String tokenValue
+            switch (type) {
+                case "upload":
+                    tokenValue = tokenService.generateToken(RepoService.Users.REPO_UPLOAD)
+                    break
+                case "download":
+                    tokenValue = tokenService.generateToken(RepoService.Users.REPO_READ)
+                    break
+                case "tracked":
+                    tokenValue = tokenService.generateToken(MessagingService.Users.MESSAGING_REPO_READ_USER)
+                    break
+                case "message":
+                    tokenValue = tokenService.generateToken(MessagingService.Users.MESSAGING_USER)
+                    break
+            }
+            def restToken = RestToken.findByToken(tokenValue)
+            redirect(action: "view", id: restToken.id)
+            return
+        } catch (all) {
+            flash.message = "An error has occurred while attempting to generate a token."
+            redirect(action: "index")
         }
-        def restToken = RestToken.findByToken(tokenValue)
-        redirect(action: "view", id: restToken.id)
     }
 
     @Secured(["ROLE_ADMIN"])
@@ -87,25 +93,31 @@ class TokenController {
             respond restToken, model: [roles: roles, restrictions: restrictions]
             return
         } else {
-            flash.message = "Cannot find Token: $params?.id"
+            flash.message = "Cannot find Token with ID: ${params?.id}"
             redirect(action: "index")
         }
     }
 
     @Secured(["ROLE_ADMIN"])
     def addTokenRestriction(RestToken token, String type) {
-        withForm {
-            switch (type) {
-                case "UPLOAD":
-                    addUploadRestriction(token)
-                    break
-                case "DOWNLOAD":
-                    addDownloadRestriction(token)
-                    break
-                case "MESSAGE":
-                    addMessageRestriction(token)
-                    break
+        if (token) {
+            withForm {
+                switch (type) {
+                    case "UPLOAD":
+                        addUploadRestriction(token)
+                        break
+                    case "DOWNLOAD":
+                        addDownloadRestriction(token)
+                        break
+                    case "MESSAGE":
+                        addMessageRestriction(token)
+                        break
+                }
+            }.invalidToken {
+                flash.tokenRestrictionMessage = "The server has detected that the form has been submitted multiple times. Please submit the from only once."
             }
+        } else {
+            flash.tokenRestrictionMessage = "Cannot find Token with ID: ${params?.id}"
         }
         redirect(action: "view", id: token.id)
     }
@@ -149,7 +161,11 @@ class TokenController {
     @Secured(["ROLE_ADMIN"])
     def deleteTokenRestriction(TokenRestriction restriction) {
         if (restriction) {
-            restriction.delete()
+            if (restriction) {
+                restriction.delete()
+            }
+        } else {
+            flash.authorityMessage = "Cannot find Token Restriction with ID: ${params?.id}"
         }
         redirect(action: "view", id: params?.token)
     }

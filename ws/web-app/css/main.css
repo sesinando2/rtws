@@ -123,7 +123,7 @@ input[type=submit] {
 /* End Web Froms */
 
 /* Generic Page */
-#page_heading {
+#page_heading, .section_heading {
     margin-top: 5%;
     text-align: center;
     margin-bottom: 20px;
@@ -141,7 +141,7 @@ input[type=submit] {
     text-align: center;
 }
 
-#page_heading p {
+#page_heading p, .section_heading p {
     font-style: italic;
 }
 

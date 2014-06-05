@@ -19,6 +19,9 @@
         <g:link action="index">Back to List</g:link>
         <g:link action="delete" id="${token?.id}">Delete</g:link>
     </div>
+    <g:if test="${flash.message}">
+        <div class="message" role="status"><p>${flash.message}</p></div>
+    </g:if>
 </div>
 <div id="token_details_section" class="grid_ 24 content token_view" role="main">
     <form id="token_details">
@@ -34,6 +37,9 @@
 </div>
 <div class="grid_24 section_heading" role="section_heading">
     <h3 class="section_heading">Authority</h3>
+    <g:if test="${flash.authorityMessage}">
+        <div class="message" role="status"><p>${flash.authorityMessage}</p></div>
+    </g:if>
 </div>
 <div id="token_authority_section" class="grid_ 24 content token_view" role="section">
     <form id="token_authority_details">
@@ -73,8 +79,8 @@
 </div>
 <div class="grid_24 section_heading" role="section_heading">
     <h3 class="section_heading">Add Token Restriction</h3>
-    <g:if test="${flash?.message}">
-    <p>${flash?.message}</p>
+    <g:if test="${flash?.tokenRestrictionMessage}">
+        <div class="message" role="status"><p>${flash.tokenRestrictionMessage}</p></div>
     </g:if>
 </div>
 <div id="add_token_restriction_section" class="grid_ 24 content token_view" role="section">
